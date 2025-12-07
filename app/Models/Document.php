@@ -6,5 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
-    //
+    protected $fillable = [
+        'registration_id',
+        'type',
+        'file_path',
+        'status'
+    ];
+
+    public function registration()
+    {
+        return $this->belongsTo(Registration::class);
+    }
 }
