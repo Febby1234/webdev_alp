@@ -34,7 +34,7 @@ class ResultController extends Controller
         // Ambil nilai tes (jika ada)
         $examResults = $registration->examResults;
 
-        // Status final: pending, passed, failed (sesuai PDF)
+        // Status final: pending, passed, failed 
         $finalStatus = $registration->status;
 
         return view('student.result.index', [
