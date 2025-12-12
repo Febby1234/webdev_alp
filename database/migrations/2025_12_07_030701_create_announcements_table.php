@@ -6,24 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('content');
+            $table->boolean('is_public')->default(true);
             $table->timestamps();
-
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('announcements');
     }

@@ -9,20 +9,23 @@ class PaymentController extends Controller
 {
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'registration_id' => 'required',
-            'amount'          => 'required|integer',
-            'proof'           => 'required|file|mimes:jpg,png,pdf'
+        $request->validate([
+            'amount' => 'required|numeric',
+            'proof' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $path = $request->file('proof')->store('payments');
+        $path = $request->file('proof')->store('payments', 'public');
 
-        return Payment::create([
-            'registration_id' => $data['registration_id'],
-            'amount'          => $data['amount'],
-            'proof'           => $path,
+        Payment::create([
+            'registration_id' => auth()->user()->registration->id,
+            'amount' => $request->amount,
+            'status' => 'pending',
+            'proof_path' => $path
         ]);
+
+        return back()->with('success', 'Payment uploaded successfully.');
     }
+
 
     public function verify(Request $request, Payment $payment)
     {
