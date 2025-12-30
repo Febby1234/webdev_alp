@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('registration_id')->constrained('registrations');
-            $table->string('school_name');
-            $table->string('graduation_year');
-            $table->float('average_score')->nullable();
+            $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
+            $table->string('type'); // KTP, Ijazah, Foto, KK
+            $table->string('file_path');
+            $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
+            $table->text('note')->nullable();
             $table->timestamps();
+
+            // Index untuk performance
+            $table->index('status');
+            $table->index(['registration_id', 'type']);
         });
     }
 

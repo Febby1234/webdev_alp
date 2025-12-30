@@ -39,7 +39,7 @@ class User extends Authenticatable
         ];
     }
 
-    // RELATIONS
+    // RELATIONSHIPS
 
     /**
      * A user (student) may have many registrations.
@@ -63,5 +63,39 @@ class User extends Authenticatable
     public function examResults()
     {
         return $this->hasMany(ExamResult::class, 'interviewer_id');
+    }
+
+    /**
+     * Announcements created by user.
+     */
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class);
+    }
+
+    // HELPER METHODS
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is interviewer
+     */
+    public function isInterviewer(): bool
+    {
+        return $this->role === 'interviewer';
+    }
+
+    /**
+     * Check if user is student
+     */
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
     }
 }

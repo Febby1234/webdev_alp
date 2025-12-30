@@ -1,49 +1,134 @@
 <x-main-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Buat Jadwal Ujian') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Buat Jadwal Ujian Baru') }}
+        </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            {{-- Back Button --}}
+            <div class="mb-6">
+                <a href="{{ route('admin.schedules.index') }}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Kembali ke Daftar Jadwal
+                </a>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <form method="POST" action="{{ route('admin.schedules.store') }}">
                         @csrf
 
                         <div class="space-y-6">
+                            {{-- Exam Type --}}
                             <div>
                                 <x-input-label for="type" :value="__('Jenis Ujian')" />
-                                <select id="type" name="type" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
+                                <select id="type"
+                                        name="type"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                        required>
                                     <option value="">Pilih Jenis Ujian</option>
-                                    <option value="Ujian Tertulis">Ujian Tertulis</option>
-                                    <option value="Ujian Wawancara">Ujian Wawancara</option>
-                                    <option value="Tes Psikologi">Tes Psikologi</option>
-                                    <option value="Tes Kesehatan">Tes Kesehatan</option>
+                                    <option value="Ujian Tertulis" {{ old('type') == 'Ujian Tertulis' ? 'selected' : '' }}>Ujian Tertulis</option>
+                                    <option value="Ujian Wawancara" {{ old('type') == 'Ujian Wawancara' ? 'selected' : '' }}>Ujian Wawancara</option>
+                                    <option value="Tes Psikologi" {{ old('type') == 'Tes Psikologi' ? 'selected' : '' }}>Tes Psikologi</option>
+                                    <option value="Tes Kesehatan" {{ old('type') == 'Tes Kesehatan' ? 'selected' : '' }}>Tes Kesehatan</option>
                                 </select>
+                                <x-input-error :messages="$errors->get('type')" class="mt-2" />
                             </div>
 
+                            {{-- Date --}}
                             <div>
-                                <x-input-label for="date" :value="__('Tanggal')" />
-                                <x-text-input id="date" class="block mt-1 w-full" type="date" name="date" required />
+                                <x-input-label for="date" :value="__('Tanggal Pelaksanaan')" />
+                                <x-text-input id="date"
+                                              class="block mt-1 w-full"
+                                              type="date"
+                                              name="date"
+                                              :value="old('date')"
+                                              required
+                                              min="{{ now()->format('Y-m-d') }}" />
+                                <x-input-error :messages="$errors->get('date')" class="mt-2" />
+                                <p class="text-sm text-gray-500 mt-1">Pilih tanggal pelaksanaan ujian</p>
                             </div>
 
+                            {{-- Time --}}
                             <div>
-                                <x-input-label for="time" :value="__('Waktu')" />
-                                <x-text-input id="time" class="block mt-1 w-full" type="time" name="time" required />
+                                <x-input-label for="time" :value="__('Waktu Mulai')" />
+                                <x-text-input id="time"
+                                              class="block mt-1 w-full"
+                                              type="time"
+                                              name="time"
+                                              :value="old('time')"
+                                              required />
+                                <x-input-error :messages="$errors->get('time')" class="mt-2" />
+                                <p class="text-sm text-gray-500 mt-1">Format 24 jam (contoh: 14:00)</p>
                             </div>
 
+                            {{-- Location --}}
                             <div>
-                                <x-input-label for="location" :value="__('Lokasi')" />
-                                <x-text-input id="location" class="block mt-1 w-full" type="text" name="location" placeholder="Gedung A Lantai 2" required />
+                                <x-input-label for="location" :value="__('Lokasi Pelaksanaan')" />
+                                <x-text-input id="location"
+                                              class="block mt-1 w-full"
+                                              type="text"
+                                              name="location"
+                                              :value="old('location')"
+                                              placeholder="Contoh: Gedung A Lantai 2, Ruang 201"
+                                              required />
+                                <x-input-error :messages="$errors->get('location')" class="mt-2" />
                             </div>
 
-                            <div class="flex gap-3">
-                                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                    Simpan Jadwal
-                                </button>
-                                <a href="{{ route('admin.schedules.index') }}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-                                    Batal
-                                </a>
+                            {{-- Capacity (Optional) --}}
+                            <div>
+                                <x-input-label for="capacity" :value="__('Kapasitas (Opsional)')" />
+                                <x-text-input id="capacity"
+                                              class="block mt-1 w-full"
+                                              type="number"
+                                              name="capacity"
+                                              :value="old('capacity')"
+                                              min="1"
+                                              placeholder="Jumlah peserta maksimal" />
+                                <x-input-error :messages="$errors->get('capacity')" class="mt-2" />
+                                <p class="text-sm text-gray-500 mt-1">Kosongkan jika tidak ada batasan kapasitas</p>
+                            </div>
+
+                            {{-- Notes (Optional) --}}
+                            <div>
+                                <x-input-label for="notes" :value="__('Catatan (Opsional)')" />
+                                <textarea id="notes"
+                                          name="notes"
+                                          rows="3"
+                                          class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                          placeholder="Catatan atau instruksi tambahan untuk peserta ujian">{{ old('notes') }}</textarea>
+                                <x-input-error :messages="$errors->get('notes')" class="mt-2" />
+                            </div>
+
+                            {{-- Info Box --}}
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700 font-medium">Tips Membuat Jadwal:</p>
+                                        <ul class="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
+                                            <li>Pastikan tanggal dan waktu tidak bentrok dengan jadwal lain</li>
+                                            <li>Pilih lokasi yang mudah diakses oleh peserta</li>
+                                            <li>Beri jeda waktu yang cukup antar sesi ujian</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Submit Buttons --}}
+                            <div class="flex gap-3 pt-4">
+                                <x-primary-button>
+                                    {{ __('Simpan Jadwal') }}
+                                </x-primary-button>
+                                <x-secondary-button type="button" onclick="window.location='{{ route('admin.schedules.index') }}'">
+                                    {{ __('Batal') }}
+                                </x-secondary-button>
                             </div>
                         </div>
                     </form>

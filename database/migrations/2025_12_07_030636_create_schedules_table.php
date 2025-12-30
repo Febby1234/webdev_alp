@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('batch_id')->constrained('batches');
+            $table->foreignId('batch_id')->constrained('batches')->onDelete('cascade');
+            $table->enum('type', ['exam', 'interview']);
             $table->date('date');
             $table->time('time');
             $table->string('location');
-            $table->enum('type', ['exam', 'interview']);
             $table->timestamps();
+
+            // Index untuk performance
+            $table->index('date');
+            $table->index(['batch_id', 'type']);
         });
     }
 

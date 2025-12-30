@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('school_origins', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('registration_id')->constrained('registrations');
-            $table->string('school_name');
-            $table->string('graduation_year');
-            $table->float('average_score')->nullable();
+            $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
+            $table->string('school_origin_name');
+            $table->string('graduation_year', 4);
+            $table->decimal('average_grade', 5, 2)->nullable();
             $table->timestamps();
         });
     }

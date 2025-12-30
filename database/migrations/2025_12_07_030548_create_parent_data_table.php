@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('parent_data', function (Blueprint $table) {
+        Schema::create('parents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('registration_id')->constrained('registrations');
+            $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
             $table->string('father_name')->nullable();
+            $table->string('father_job')->nullable();
+            $table->string('father_phone')->nullable();
             $table->string('mother_name')->nullable();
+            $table->string('mother_job')->nullable();
+            $table->string('mother_phone')->nullable();
             $table->string('guardian_name')->nullable();
             $table->string('contact')->nullable();
             $table->timestamps();
-
         });
     }
 
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('parent_data');
+        Schema::dropIfExists('parents');
     }
 };

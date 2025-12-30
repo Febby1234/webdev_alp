@@ -8,9 +8,18 @@ class Batch extends Model
 {
     protected $fillable = [
         'name',
-        'open_date',
-        'close_date',
+        'start_date',
+        'end_date',
+        'is_active'
     ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
+    ];
+
+    // RELATIONSHIPS
 
     public function registrations()
     {
@@ -20,5 +29,81 @@ class Batch extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    // HELPER METHODS
+
+    /**
+     * Check if registration is open
+     */
+    public function isOpen(): bool
+    {
+        $now = now()->toDateString();
+        return $this->is_active &&
+               $now >= $this->start_date->toDateString() &&
+               $now <= $this->end_date->toDateString();
+    }
+
+    /**
+     * Check if registration has closed
+     */
+    public function isClosed(): bool
+    {
+        return !$this->is_active || now()->toDateString() > $this->end_date->toDateString();
+    }
+
+    /**
+     * Check if registration hasn't started yet
+     */
+    public function isUpcoming(): bool
+    {
+        return $this->is_active && now()->toDateString() < $this->start_date->toDateString();
+    }
+
+    /**
+     * Get days remaining until close
+     */
+    public function getDaysRemaining(): int
+    {
+        if ($this->isClosed()) {
+            return 0;
+        }
+
+        return max(0, now()->startOfDay()->diffInDays($this->end_date, false));
+    }
+
+    /**
+     * Get status label
+     */
+    public function getStatusLabel(): string
+    {
+        if ($this->isUpcoming()) {
+            return 'Akan Dibuka';
+        } elseif ($this->isOpen()) {
+            return 'Dibuka';
+        } else {
+            return 'Ditutup';
+        }
+    }
+
+    // SCOPES
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeOpen($query)
+    {
+        $now = now()->toDateString();
+        return $query->where('is_active', true)
+            ->whereDate('start_date', '<=', $now)
+            ->whereDate('end_date', '>=', $now);
+    }
+
+    public function scopeClosed($query)
+    {
+        return $query->where('is_active', false)
+            ->orWhereDate('end_date', '<', now()->toDateString());
     }
 }

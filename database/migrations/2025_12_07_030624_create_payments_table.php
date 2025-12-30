@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('registration_id')->constrained('registrations');
+            $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
             $table->integer('amount');
-            $table->string('proof'); // bukti transfer
-            $table->enum('status', ['pending','approved','rejected'])->default('pending');
-            $table->foreignId('verified_by')->nullable()->constrained('users');
+            $table->string('proof_image');
+            $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending'); // ✅ FIXED: changed 'approved' to 'verified'
+            $table->text('note')->nullable();
+            $table->foreignId('verified_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
+
+            // Index untuk performance
+            $table->index('status');
         });
     }
 
