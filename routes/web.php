@@ -25,9 +25,12 @@ use App\Http\Controllers\Admin\MajorController as AdminMajorController;
 use App\Http\Controllers\Admin\BatchController as AdminBatchController;
 use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\DocumentVerificationController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\AnnouncementManagementController;
+use App\Http\Controllers\Admin\InterviewerManagementController;
+use App\Http\Controllers\Admin\ExamFinalizationController;
 
 // INTERVIEWER CONTROLLERS
 use App\Http\Controllers\Interviewer\DashboardController as InterviewerDashboardController;
@@ -83,6 +86,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('batches', AdminBatchController::class);
     Route::resource('schedules', AdminScheduleController::class);
     Route::resource('users', AdminUserController::class);
+    Route::resource('registrations', AdminRegistrationController::class);
+    Route::resource('interviewers', InterviewerManagementController::class);
+
+    // Registration Routes
+    Route::post('/registrations/bulk-update-status', [AdminRegistrationController::class, 'bulkUpdateStatus'])->name('registrations.bulk-update-status');
+    Route::get('/registrations/export', [AdminRegistrationController::class, 'export'])->name('registrations.export');
 
     Route::get('/documents', [DocumentVerificationController::class, 'index'])->name('documents.index');
     Route::patch('/documents/{id}', [DocumentVerificationController::class, 'update'])->name('documents.update');
@@ -91,6 +100,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/payments/{id}', [PaymentVerificationController::class, 'update'])->name('payments.update');
 
     Route::resource('announcements', AnnouncementManagementController::class)->except('index');
+
+    // Exam Finalization Routes
+    Route::prefix('exam-finalization')->name('exam-finalization.')->group(function () {
+        Route::get('/', [ExamFinalizationController::class, 'index'])->name('index');
+        Route::get('/{registration}', [ExamFinalizationController::class, 'show'])->name('show');
+        Route::post('/{registration}', [ExamFinalizationController::class, 'finalize'])->name('finalize');
+        Route::post('/bulk-finalize', [ExamFinalizationController::class, 'bulkFinalize'])->name('bulk-finalize');
+        Route::get('/report', [ExamFinalizationController::class, 'report'])->name('report');
+        Route::get('/export-report', [ExamFinalizationController::class, 'exportReport'])->name('export-report');
+    });
 });
 
 
