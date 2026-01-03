@@ -15,25 +15,25 @@ class BatchSeeder extends Seeder
     {
         $batches = [
             [
-                'name' => 'Gelombang 1',
+                'batch_name' => 'Gelombang 1',
                 'start_date' => Carbon::now()->subDays(30),
                 'end_date' => Carbon::now()->addDays(30),
                 'is_active' => true, // Currently open
             ],
             [
-                'name' => 'Gelombang 2',
+                'batch_name' => 'Gelombang 2',
                 'start_date' => Carbon::now()->addDays(31),
                 'end_date' => Carbon::now()->addDays(90),
                 'is_active' => true, // Will open soon
             ],
             [
-                'name' => 'Gelombang 3',
+                'batch_name' => 'Gelombang 3',
                 'start_date' => Carbon::now()->addDays(91),
                 'end_date' => Carbon::now()->addDays(150),
                 'is_active' => true, // Will open later
             ],
             [
-                'name' => 'Gelombang 4',
+                'batch_name' => 'Gelombang 4',
                 'start_date' => Carbon::now()->addDays(151),
                 'end_date' => Carbon::now()->addDays(210),
                 'is_active' => false, // Not active yet

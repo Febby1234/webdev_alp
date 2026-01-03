@@ -5,110 +5,58 @@ namespace App\Http\Controllers\Interviewer;
 use App\Http\Controllers\Controller;
 use App\Models\Registration;
 use App\Models\ExamResult;
+use App\Models\Major;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class InterviewerExamResultController extends Controller
 {
     /**
-     * Tampilkan daftar siswa yang akan/sudah diuji
+     * Tampilkan daftar peserta (participants.index)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $registrations = Registration::with(['user', 'major', 'personalDetail', 'examResults'])
-            ->whereIn('status', ['exam_scheduled', 'interview_scheduled', 'finished', 'accepted', 'rejected'])
-            ->paginate(20);
+        $query = Registration::with(['user', 'major', 'personalDetail', 'examResults', 'schedules'])
+            ->whereIn('status', ['exam_scheduled', 'interview_scheduled', 'finished', 'accepted', 'rejected']);
 
-        return view('interviewer.exam.index', compact('registrations'));
-    }
-
-    /**
-     * Form input nilai ujian
-     */
-    public function create($registration_id)
-    {
-        $registration = Registration::with(['user', 'major', 'personalDetail'])
-            ->findOrFail($registration_id);
-
-        return view('interviewer.exam.create', compact('registration'));
-    }
-
-    /**
-     * Simpan hasil ujian
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'registration_id' => 'required|exists:registrations,id',
-            'schedule_id'     => 'nullable|exists:schedules,id',
-            'score'           => 'required|integer|min:0|max:100',
-            'status'          => 'required|in:pass,fail', // FIXED: Changed from 'result' to 'status'
-            'notes'           => 'nullable|string|max:500',
-        ]);
-
-        // Cek apakah sudah ada hasil ujian untuk pendaftar ini oleh interviewer ini
-        $existingResult = ExamResult::where('registration_id', $validated['registration_id'])
-            ->where('interviewer_id', Auth::id())
-            ->first();
-
-        if ($existingResult) {
-            return redirect()->back()->with('error', 'Anda sudah memberikan nilai untuk pendaftar ini.');
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('registration_code', 'like', '%' . $search . '%')
+                    ->orWhereHas('personalDetail', function ($q) use ($search) {
+                        $q->where('full_name', 'like', '%' . $search . '%');
+                    });
+            });
         }
 
-        // Simpan hasil ujian
-        ExamResult::create([
-            'registration_id' => $validated['registration_id'],
-            'schedule_id'     => $validated['schedule_id'] ?? null,
-            'interviewer_id'  => Auth::id(),
-            'score'           => $validated['score'],
-            'status'          => $validated['status'],
-            'notes'           => $validated['notes'],
-        ]);
+        // Filter by status (pending/completed)
+        if ($request->filled('status')) {
+            if ($request->status == 'pending') {
+                $query->whereDoesntHave('examResults');
+            } elseif ($request->status == 'completed') {
+                $query->whereHas('examResults');
+            }
+        }
 
-        // Update status registrasi
-        $registration = Registration::findOrFail($validated['registration_id']);
-        $registration->update(['status' => 'finished']);
+        // Filter by major
+        if ($request->filled('major_id')) {
+            $query->where('major_id', $request->major_id);
+        }
 
-        return redirect()->route('interviewer.exam.index')
-            ->with('success', 'Hasil ujian berhasil disimpan.');
+        $participants = $query->latest()->paginate(20);
+        $majors = Major::where('is_active', true)->get();
+
+        return view('interviewers.participants.index', compact('participants', 'majors'));
     }
 
     /**
-     * Edit hasil ujian
+     * Lihat detail peserta & form input nilai (participants.show)
      */
-    public function edit($id)
+    public function show(Registration $registration)
     {
-        $examResult = ExamResult::with(['registration.user', 'registration.major', 'registration.personalDetail'])
-            ->where('interviewer_id', Auth::id())
-            ->findOrFail($id);
-
-        return view('interviewer.exam.edit', compact('examResult'));
-    }
-
-    /**
-     * Update hasil ujian
-     */
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'score'  => 'required|integer|min:0|max:100',
-            'status' => 'required|in:pass,fail', // FIXED: Changed from 'result' to 'status'
-            'notes'  => 'nullable|string|max:500',
-        ]);
-
-        $examResult = ExamResult::where('interviewer_id', Auth::id())->findOrFail($id);
-        $examResult->update($validated);
-
-        return redirect()->route('interviewer.exam.index')
-            ->with('success', 'Hasil ujian berhasil diperbarui.');
-    }
-
-    /**
-     * Lihat detail profil peserta
-     */
-    public function viewProfile($registration_id)
-    {
-        $registration = Registration::with([
+        $registration->load([
             'user',
             'major',
             'batch',
@@ -117,9 +65,95 @@ class InterviewerExamResultController extends Controller
             'schoolOrigin',
             'documents',
             'payment',
-            'examResults'
-        ])->findOrFail($registration_id);
+            'examResults.interviewer',
+            'schedules'
+        ]);
 
-        return view('interviewer.exam.profile', compact('registration'));
+        // Cek apakah interviewer ini sudah memberikan nilai
+        $examResult = $registration->examResults()
+            ->where('interviewer_id', Auth::id())
+            ->first();
+
+        // Ambil schedule interview jika ada
+        $schedule = $registration->schedules()->first();
+
+        // Rename untuk view compatibility
+        $participant = $registration;
+
+        return view('interviewers.participants.show', compact('participant', 'examResult', 'schedule'));
+    }
+
+    /**
+     * Simpan/Update nilai (participants.score)
+     */
+    public function score(Request $request, Registration $registration)
+    {
+        $validated = $request->validate([
+            'score'  => 'required|integer|min:0|max:100',
+            'status' => 'required|in:pass,fail,passed,failed',
+            'notes'  => 'nullable|string|max:500',
+        ]);
+
+        // Normalize status
+        $status = in_array($validated['status'], ['pass', 'passed']) ? 'pass' : 'fail';
+
+        // Cek apakah sudah ada hasil dari interviewer ini
+        $existingResult = ExamResult::where('registration_id', $registration->id)
+            ->where('interviewer_id', Auth::id())
+            ->first();
+
+        if ($existingResult) {
+            // Update existing
+            $existingResult->update([
+                'score'  => $validated['score'],
+                'status' => $status,
+                'notes'  => $validated['notes'],
+            ]);
+            $message = 'Nilai berhasil diperbarui.';
+        } else {
+            // Create new
+            ExamResult::create([
+                'registration_id' => $registration->id,
+                'schedule_id'     => $registration->schedules()->first()?->id,
+                'interviewer_id'  => Auth::id(),
+                'score'           => $validated['score'],
+                'status'          => $status,
+                'notes'           => $validated['notes'],
+            ]);
+            $message = 'Nilai berhasil disimpan.';
+
+            // Update status registrasi
+            $registration->update(['status' => 'finished']);
+        }
+
+        return redirect()->route('interviewer.participants.index')
+            ->with('success', $message);
+    }
+
+    /**
+     * Tampilkan daftar jadwal (schedule.index)
+     */
+    public function scheduleIndex(Request $request)
+    {
+        $date = $request->get('date', date('Y-m-d'));
+
+        // Jadwal untuk tanggal tertentu, grouped by time
+        $schedules = Schedule::with(['registrations.user', 'registrations.personalDetail', 'registrations.major', 'registrations.examResults'])
+            ->whereDate('date', $date)
+            ->orderBy('time')
+            ->get()
+            ->groupBy(function ($schedule) {
+                return date('H:i', strtotime($schedule->time));
+            });
+
+        // Jadwal mendatang (7 hari ke depan)
+        $upcoming_schedules = Schedule::withCount('registrations')
+            ->where('date', '>', today())
+            ->where('date', '<=', today()->addDays(7))
+            ->orderBy('date')
+            ->orderBy('time')
+            ->get();
+
+        return view('interviewers.schedules.index', compact('schedules', 'upcoming_schedules'));
     }
 }

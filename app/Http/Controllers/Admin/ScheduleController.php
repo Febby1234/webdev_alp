@@ -15,7 +15,11 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = Schedule::with(['batch', 'registrations'])->latest()->get();
+        $schedules = Schedule::with(['batch'])
+            ->withCount('registrations')
+            ->latest()
+            ->get();
+
         return view('admin.schedules.index', compact('schedules'));
     }
 
@@ -34,11 +38,11 @@ class ScheduleController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'batch_id' => 'required|exists:batches,id',
-            'type'     => 'required|in:exam,interview',
+            'batch_id' => 'nullable|exists:batches,id',
+            'type'     => 'required|string|max:255',
             'date'     => 'required|date',
             'time'     => 'required',
-            'location' => 'required|string|max:255',
+            'location' => 'required|string|max:255'
         ]);
 
         Schedule::create($data);
@@ -71,11 +75,11 @@ class ScheduleController extends Controller
     public function update(Request $request, Schedule $schedule)
     {
         $data = $request->validate([
-            'batch_id' => 'required|exists:batches,id',
-            'type'     => 'required|in:exam,interview',
+            'batch_id' => 'nullable|exists:batches,id',
+            'type'     => 'required|string|max:255',
             'date'     => 'required|date',
             'time'     => 'required',
-            'location' => 'required|string|max:255',
+            'location' => 'required|string|max:255'
         ]);
 
         $schedule->update($data);
@@ -89,6 +93,11 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
+        // Cek apakah ada peserta terdaftar
+        if ($schedule->registrations()->count() > 0) {
+            return back()->with('error', 'Tidak dapat menghapus jadwal yang sudah memiliki peserta!');
+        }
+
         $schedule->delete();
 
         return redirect()->route('admin.schedules.index')
@@ -157,13 +166,18 @@ class ScheduleController extends Controller
     public function assignForm(Schedule $schedule)
     {
         // Ambil registrasi yang eligible untuk dijadwalkan
-        $registrations = Registration::with(['user', 'major', 'personalDetail'])
-            ->where('batch_id', $schedule->batch_id)
+        $query = Registration::with(['user', 'major', 'personalDetail'])
             ->whereIn('status', ['paid', 'exam_scheduled', 'interview_scheduled'])
             ->whereDoesntHave('schedules', function($query) use ($schedule) {
                 $query->where('schedule_id', $schedule->id);
-            })
-            ->get();
+            });
+
+        // Filter by batch jika schedule punya batch_id
+        if ($schedule->batch_id) {
+            $query->where('batch_id', $schedule->batch_id);
+        }
+
+        $registrations = $query->get();
 
         return view('admin.schedules.assign', compact('schedule', 'registrations'));
     }

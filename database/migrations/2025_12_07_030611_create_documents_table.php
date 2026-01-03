@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
+            $table->string('document_name');
             $table->string('type'); // KTP, Ijazah, Foto, KK
             $table->string('file_path');
             $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
-            $table->text('note')->nullable();
             $table->timestamps();
 
             // Index untuk performance

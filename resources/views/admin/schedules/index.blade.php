@@ -63,16 +63,6 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    {{ $schedule->type }}
-                                                </div>
-                                                @if($schedule->notes)
-                                                <div class="text-xs text-gray-500 mt-1">
-                                                    {{ Str::limit($schedule->notes, 50) }}
-                                                </div>
-                                                @endif
-                                            </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -87,21 +77,6 @@
                                         <div class="text-sm text-gray-900">
                                             {{ $schedule->location }}
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">
-                                            {{ $schedule->registrations_count ?? 0 }}
-                                            @if($schedule->capacity)
-                                                / {{ $schedule->capacity }} peserta
-                                            @else
-                                                peserta
-                                            @endif
-                                        </div>
-                                        @if($schedule->capacity && ($schedule->registrations_count ?? 0) >= $schedule->capacity)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                            Penuh
-                                        </span>
-                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-3">

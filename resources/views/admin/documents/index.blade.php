@@ -105,7 +105,7 @@
                                 <div class="ml-3 flex-1">
                                     <p class="text-sm font-semibold text-gray-900">{{ $document->type }}</p>
                                     <p class="text-xs text-gray-600">
-                                        {{ $document->registration->personalDetail->fullname ?? $document->registration->user->name ?? 'Unknown' }}
+                                        {{ $document->registration->personalDetail->full_name ?? $document->registration->user->name ?? 'Unknown' }}
                                     </p>
                                     <p class="text-xs text-gray-500 mt-1">
                                         {{ $document->registration->registration_code ?? '-' }}

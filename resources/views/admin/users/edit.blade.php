@@ -121,7 +121,7 @@
                     <p class="text-sm text-gray-600 mb-4">
                         Reset password user ini ke password default baru
                     </p>
-                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST">
+                    <form action="{{ route('admin.users.resetPassword', $user->id) }}" method="POST">
                         @csrf
                         <div class="space-y-4">
                             <div>

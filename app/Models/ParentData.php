@@ -16,8 +16,6 @@ class ParentData extends Model
         'mother_name',
         'mother_job',
         'mother_phone',
-        'guardian_name',
-        'contact',
     ];
 
     // RELATIONSHIPS
@@ -30,11 +28,11 @@ class ParentData extends Model
     // HELPER METHODS
 
     /**
-     * Get primary contact (father or guardian)
+     * Get primary contact (father's phone)
      */
     public function getPrimaryContact(): ?string
     {
-        return $this->father_phone ?? $this->contact;
+        return $this->father_phone;
     }
 
     /**

@@ -2,60 +2,74 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Controllers\Controller;
+use App\Models\Registration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use App\Http\Controllers\Controller;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the user's profile.
      */
-    public function edit(Request $request): View
+    public function show(): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
+        $user = Auth::user();
+
+        $registration = Registration::with(['major', 'personalDetail'])
+            ->where('user_id', $user->id)
+            ->first();
+
+        $personalDetail = $registration?->personalDetail;
+
+        return view('student.profile.show', [
+            'user' => $user,
+            'registration' => $registration,
+            'personalDetail' => $personalDetail,
+        ]);
+    }
+
+    /**
+     * Display the user's profile form for editing.
+     */
+    public function edit(): View
+    {
+        $user = Auth::user();
+
+        $registration = Registration::with(['personalDetail'])
+            ->where('user_id', $user->id)
+            ->first();
+
+        return view('student.profile.edit', [
+            'user' => $user,
+            'registration' => $registration,
         ]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
         ]);
 
-        $user = $request->user();
+        $user->fill($validated);
 
-        Auth::logout();
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
 
-        $user->delete();
+        $user->save();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return Redirect::route('student.profile.show')->with('success', 'Profil berhasil diperbarui.');
     }
 }

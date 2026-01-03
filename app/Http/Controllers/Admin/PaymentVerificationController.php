@@ -11,14 +11,44 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentVerificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil pembayaran terbaru
-        $payments = Payment::with(['registration.user', 'registration.major'])
-            ->latest()
-            ->paginate(20);
+        $query = Payment::with(['registration.user', 'registration.major', 'registration.personalDetail']);
 
-        return view('admin.payments.index', compact('payments'));
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Search by name
+        if ($request->filled('search')) {
+            $query->whereHas('registration.user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            })->orWhereHas('registration.personalDetail', function ($q) use ($request) {
+                $q->where('full_name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $payments = $query->latest()->paginate(20);
+
+        // Stats untuk quick filter
+        $stats = [
+            'pending'  => Payment::where('status', 'pending')->count(),
+            'verified' => Payment::where('status', 'verified')->count(),
+            'rejected' => Payment::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.payments.index', compact('payments', 'stats'));
+    }
+
+    /**
+     * Tampilkan detail pembayaran
+     */
+    public function show(Payment $payment)
+    {
+        $payment->load(['registration.user', 'registration.major', 'registration.personalDetail', 'registration.batch', 'verifiedBy']);
+
+        return view('admin.payments.show', compact('payment'));
     }
 
     /**
@@ -31,23 +61,27 @@ class PaymentVerificationController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.payments.index', compact('payments', 'status'));
+        $stats = [
+            'pending'  => Payment::where('status', 'pending')->count(),
+            'verified' => Payment::where('status', 'verified')->count(),
+            'rejected' => Payment::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.payments.index', compact('payments', 'status', 'stats'));
     }
 
     /**
-     * Verifikasi atau tolak pembayaran
+     * Verifikasi atau tolak pembayaran (unified update method)
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Payment $payment)
     {
         $request->validate([
-            'status' => 'required|in:pending,verified,rejected', // FIXED: changed 'approved' to 'verified'
-            'note'   => 'nullable|string|max:255',
+            'status' => 'required|in:pending,verified,rejected',
         ]);
 
-        $payment = Payment::findOrFail($id);
         $payment->status = $request->status;
-        $payment->note = $request->note ?? null;
         $payment->verified_by = Auth::id();
+
         $payment->save();
 
         // Update status registrasi
@@ -72,7 +106,7 @@ class PaymentVerificationController extends Controller
             return back()->with('error', 'File tidak ditemukan.');
         }
 
-        $path = Storage::disk('public')->path($payment->proof_image); 
+        $path = Storage::disk('public')->path($payment->proof_image);
         return response()->download($path);
     }
 }

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-main-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Detail Peserta & Input Nilai') }}
@@ -18,24 +18,36 @@
                 </a>
             </div>
 
+            {{-- Success/Error Message --}}
+            @if(session('success'))
+                <div class="mb-6">
+                    <x-alert type="success">{{ session('success') }}</x-alert>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-6">
+                    <x-alert type="error">{{ session('error') }}</x-alert>
+                </div>
+            @endif
+
             {{-- Participant Header --}}
             <div class="bg-gradient-to-r from-purple-600 to-purple-700 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl font-bold text-purple-600">
-                                {{ substr($participant->personalDetail->fullname ?? 'U', 0, 1) }}
+                                {{ substr($participant->personalDetail->full_name ?? 'U', 0, 1) }}
                             </div>
                             <div class="ml-6">
-                                <h3 class="text-2xl font-bold">{{ $participant->personalDetail->fullname }}</h3>
+                                <h3 class="text-2xl font-bold">{{ $participant->personalDetail->full_name ?? '-' }}</h3>
                                 <p class="text-purple-100 mt-1">{{ $participant->registration_code }}</p>
-                                <p class="text-purple-100 text-sm">{{ $participant->major->majors_name }}</p>
+                                <p class="text-purple-100 text-sm">{{ $participant->major->name ?? '-' }}</p>
                             </div>
                         </div>
-                        @if($participant->examResult)
+                        @if($examResult)
                         <div class="text-right">
                             <p class="text-sm opacity-90">Nilai Interview</p>
-                            <p class="text-5xl font-bold">{{ $participant->examResult->score }}</p>
+                            <p class="text-5xl font-bold">{{ $examResult->score }}</p>
                         </div>
                         @endif
                     </div>
@@ -51,23 +63,26 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Nama Lengkap</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->fullname }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->full_name ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Jenis Kelamin</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->gender == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->gender ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Tempat, Tanggal Lahir</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->place_of_birth }}, {{ date('d F Y', strtotime($participant->personalDetail->date_of_birth)) }}</p>
+                                    <p class="text-gray-900 mt-1">
+                                        {{ $participant->personalDetail->birth_place ?? '-' }},
+                                        {{ $participant->personalDetail->birth_date ? $participant->personalDetail->birth_date->format('d F Y') : '-' }}
+                                    </p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">No. Telepon</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->phone }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->phone ?? '-' }}</p>
                                 </div>
                                 <div class="col-span-2">
                                     <label class="text-sm font-medium text-gray-600">Alamat</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->address }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->personalDetail->address ?? '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -79,11 +94,11 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Asal Sekolah</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->schoolOrigin->school_origin_name }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->schoolOrigin->school_origin_name ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Tahun Lulus</label>
-                                    <p class="text-gray-900 mt-1">{{ $participant->schoolOrigin->graduation_year }}</p>
+                                    <p class="text-gray-900 mt-1">{{ $participant->schoolOrigin->graduation_year ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Rata-rata Nilai</label>
@@ -91,7 +106,7 @@
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-gray-600">Jurusan Dipilih</label>
-                                    <p class="text-gray-900 mt-1 font-semibold">{{ $participant->major->majors_name }}</p>
+                                    <p class="text-gray-900 mt-1 font-semibold">{{ $participant->major->name ?? '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -101,23 +116,21 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-semibold mb-6 text-gray-900">
-                                {{ $participant->examResult ? 'Edit Nilai Interview' : 'Input Nilai Interview' }}
+                                {{ $examResult ? 'Edit Nilai Interview' : 'Input Nilai Interview' }}
                             </h3>
 
-                            <form method="POST" action="{{ route('interviewer.participants.score', $participant->registration_id) }}">
+                            <form method="POST" action="{{ route('interviewer.participants.score', $participant->id) }}">
                                 @csrf
-                                @if($participant->examResult)
-                                @method('PUT')
-                                @endif
 
                                 <div class="space-y-6">
                                     {{-- Score --}}
                                     <div>
-                                        <x-input-label for="score" :value="__('Nilai (0-100)')" class="required" />
+                                        <x-input-label for="score" :value="__('Nilai (0-100)')" />
                                         <x-text-input id="score" class="block mt-1 w-full text-2xl font-bold"
                                             type="number" name="score"
-                                            :value="old('score', $participant->examResult->score ?? '')"
-                                            min="0" max="100" step="0.1" required />
+                                            :value="old('score', $examResult->score ?? '')"
+                                            min="0" max="100" required
+                                            placeholder="Masukkan nilai" />
                                         <x-input-error :messages="$errors->get('score')" class="mt-2" />
                                     </div>
 
@@ -126,7 +139,7 @@
                                         <x-input-label for="notes" :value="__('Catatan Interview')" />
                                         <textarea id="notes" name="notes" rows="6"
                                             class="block mt-1 w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm"
-                                            placeholder="Catatan hasil interview, kesan, saran, dll...">{{ old('notes', $participant->examResult->notes ?? '') }}</textarea>
+                                            placeholder="Catatan hasil interview, kesan, saran, dll...">{{ old('notes', $examResult->notes ?? '') }}</textarea>
                                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                                     </div>
 
@@ -134,10 +147,10 @@
                                     <div>
                                         <x-input-label for="status" :value="__('Status')" />
                                         <select id="status" name="status" class="block mt-1 w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
-                                            <option value="passed" {{ old('status', $participant->examResult->status ?? '') == 'passed' ? 'selected' : '' }}>
+                                            <option value="pass" {{ old('status', $examResult->status ?? '') == 'pass' ? 'selected' : '' }}>
                                                 Lulus
                                             </option>
-                                            <option value="failed" {{ old('status', $participant->examResult->status ?? '') == 'failed' ? 'selected' : '' }}>
+                                            <option value="fail" {{ old('status', $examResult->status ?? '') == 'fail' ? 'selected' : '' }}>
                                                 Tidak Lulus
                                             </option>
                                         </select>
@@ -146,7 +159,7 @@
                                     {{-- Submit Button --}}
                                     <div class="flex gap-3">
                                         <button type="submit" class="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
-                                            {{ $participant->examResult ? '✓ Update Nilai' : '✓ Simpan Nilai' }}
+                                            {{ $examResult ? '✓ Update Nilai' : '✓ Simpan Nilai' }}
                                         </button>
                                     </div>
                                 </div>
@@ -161,23 +174,23 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-semibold mb-4 text-gray-900">Info Jadwal</h3>
-                            @if($participant->schedule)
+                            @if($schedule)
                             <div class="space-y-3 text-sm">
                                 <div>
                                     <label class="text-gray-600">Jenis</label>
-                                    <p class="text-gray-900 font-medium">{{ $participant->schedule->type }}</p>
+                                    <p class="text-gray-900 font-medium">{{ $schedule->type }}</p>
                                 </div>
                                 <div>
                                     <label class="text-gray-600">Tanggal</label>
-                                    <p class="text-gray-900">{{ date('d F Y', strtotime($participant->schedule->date)) }}</p>
+                                    <p class="text-gray-900">{{ $schedule->date->format('d F Y') }}</p>
                                 </div>
                                 <div>
                                     <label class="text-gray-600">Waktu</label>
-                                    <p class="text-gray-900">{{ date('H:i', strtotime($participant->schedule->time)) }} WIB</p>
+                                    <p class="text-gray-900">{{ $schedule->time }} WIB</p>
                                 </div>
                                 <div>
                                     <label class="text-gray-600">Lokasi</label>
-                                    <p class="text-gray-900">{{ $participant->schedule->location }}</p>
+                                    <p class="text-gray-900">{{ $schedule->location }}</p>
                                 </div>
                             </div>
                             @else
@@ -197,7 +210,7 @@
                                 </div>
                                 <div>
                                     <label class="text-gray-600">Telepon</label>
-                                    <p class="text-gray-900">{{ $participant->personalDetail->phone }}</p>
+                                    <p class="text-gray-900">{{ $participant->personalDetail->phone ?? '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -218,4 +231,4 @@
 
         </div>
     </div>
-</x-app-layout>
+</x-main-layout>

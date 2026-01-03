@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('batches', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('batch_name');
             $table->date('start_date');
             $table->date('end_date');
             $table->boolean('is_active')->default(true);

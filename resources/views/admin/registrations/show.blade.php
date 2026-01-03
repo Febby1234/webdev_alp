@@ -94,7 +94,7 @@
                                 <div>
                                     <label class="text-xs font-medium text-gray-500 uppercase">Nama Lengkap</label>
                                     <p class="text-gray-900 font-medium mt-1">
-                                        {{ $registration->personalDetail->fullname ?? '-' }}
+                                        {{ $registration->personalDetail->full_name ?? '-' }}
                                     </p>
                                 </div>
                                 <div>

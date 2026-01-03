@@ -47,7 +47,12 @@ class Schedule extends Model
      */
     public function getTypeLabel(): string
     {
-        return $this->type === 'exam' ? 'Ujian' : 'Wawancara';
+        $labels = [
+            'exam'            => 'Ujian',
+            'interview'       => 'Wawancara'
+        ];
+
+        return $labels[$this->type] ?? $this->type;
     }
 
     /**
@@ -82,16 +87,26 @@ class Schedule extends Model
         return $this->date->isPast();
     }
 
+    /**
+     * Get participant count
+     */
+    public function getParticipantCount(): int
+    {
+        return $this->registrations()->count();
+    }
+
     // SCOPES
 
     public function scopeExam($query)
     {
-        return $query->where('type', 'exam');
+        return $query->where('type', 'exam')
+            ->orWhere('type', 'Ujian Tertulis');
     }
 
     public function scopeInterview($query)
     {
-        return $query->where('type', 'interview');
+        return $query->where('type', 'interview')
+            ->orWhere('type', 'Ujian Wawancara');
     }
 
     public function scopeUpcoming($query)
@@ -107,5 +122,10 @@ class Schedule extends Model
     public function scopePast($query)
     {
         return $query->where('date', '<', now()->toDateString());
+    }
+
+    public function scopeByBatch($query, $batchId)
+    {
+        return $query->where('batch_id', $batchId);
     }
 }

@@ -19,16 +19,45 @@ class PaymentController extends Controller
         $registration = Registration::where('user_id', Auth::id())->first();
 
         if (!$registration) {
-            return redirect()->route('student.dashboard')
+            return redirect()->route('student.registration.create')
                 ->with('error', 'Anda belum melakukan registrasi.');
         }
 
         $payment = $registration->payment;
+        $payments = Payment::where('registration_id', $registration->id)->get();
 
-        // Biaya pendaftaran (bisa diambil dari config atau database)
-        $registrationFee = 250000; // 250 ribu
+        // Info pembayaran
+        $payment_amount = config('registration.fee', 250000);
+        $latest_payment = $payment;
 
-        return view('student.payment.index', compact('payment', 'registration', 'registrationFee'));
+        return view('student.payment.index', compact('payment', 'payments', 'registration', 'payment_amount', 'latest_payment'));
+    }
+
+    /**
+     * Tampilkan form upload bukti pembayaran
+     */
+    public function create()
+    {
+        $registration = Registration::where('user_id', Auth::id())->first();
+
+        if (!$registration) {
+            return redirect()->route('student.registration.create')
+                ->with('error', 'Anda belum melakukan registrasi.');
+        }
+
+        // Cek apakah sudah ada payment yang verified
+        $existingPayment = Payment::where('registration_id', $registration->id)
+            ->where('status', 'verified')
+            ->first();
+
+        if ($existingPayment) {
+            return redirect()->route('student.payments.index')
+                ->with('info', 'Pembayaran Anda sudah terverifikasi.');
+        }
+
+        $payment_amount = config('registration.fee', 250000);
+
+        return view('student.payment.create', compact('registration', 'payment_amount'));
     }
 
     /**
@@ -37,13 +66,21 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'registration_id' => 'required|exists:registrations,id',
-            'amount'          => 'required|integer|min:1',
-            'proof'           => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'amount' => 'required|integer|min:1',
+            'proof'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Cek apakah sudah ada payment
-        $existingPayment = Payment::where('registration_id', $data['registration_id'])->first();
+        $registration = Registration::where('user_id', Auth::id())->first();
+
+        if (!$registration) {
+            return redirect()->route('student.registration.create')
+                ->with('error', 'Anda belum melakukan registrasi.');
+        }
+
+        // Cek apakah sudah ada payment yang pending atau verified
+        $existingPayment = Payment::where('registration_id', $registration->id)
+            ->whereIn('status', ['pending', 'verified'])
+            ->first();
 
         if ($existingPayment) {
             return back()->with('error', 'Anda sudah mengupload bukti pembayaran sebelumnya.');
@@ -51,18 +88,18 @@ class PaymentController extends Controller
 
         $path = $request->file('proof')->store('payments', 'public');
 
-        $payment = Payment::create([
-            'registration_id' => $data['registration_id'],
+        Payment::create([
+            'registration_id' => $registration->id,
             'amount'          => $data['amount'],
             'proof_image'     => $path,
             'status'          => 'pending',
         ]);
 
         // Update status registrasi
-        $registration = Registration::find($data['registration_id']);
         $registration->update(['status' => 'payment_pending']);
 
-        return back()->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi admin.');
+        return redirect()->route('student.payments.index')
+            ->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi admin.');
     }
 
     /**

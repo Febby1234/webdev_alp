@@ -13,8 +13,14 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::whereIn('role', ['admin', 'interviewer'])->latest()->get();
-        return view('admin.users.index', compact('users'));
+        $users = User::whereIn('role', ['admin', 'interviewer'])->latest()->paginate(20);
+
+        $stats = [
+            'admin' => User::where('role', 'admin')->count(),
+            'interviewer' => User::where('role', 'interviewer')->count(),
+        ];
+
+        return view('admin.users.index', compact('users', 'stats'));
     }
 
     public function create()

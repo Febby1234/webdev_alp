@@ -34,7 +34,7 @@ class PersonalDetail extends Model
      */
     public function getAge(): int
     {
-        return $this->birth_date->age;
+        return $this->birth_date ? $this->birth_date->age : 0;
     }
 
     /**
@@ -42,6 +42,17 @@ class PersonalDetail extends Model
      */
     public function getFormattedBirthInfo(): string
     {
+        if (!$this->birth_date) {
+            return $this->birth_place ?? '-';
+        }
         return $this->birth_place . ', ' . $this->birth_date->format('d F Y');
+    }
+
+    /**
+     * Get gender label
+     */
+    public function getGenderLabel(): string
+    {
+        return $this->gender === 'Laki-laki' ? 'Laki-laki' : 'Perempuan';
     }
 }

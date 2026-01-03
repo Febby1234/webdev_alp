@@ -22,11 +22,14 @@ class BatchController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'       => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date',
-            'is_active'  => 'boolean',
+            'batch_name'       => 'required|string|max:255',
+            'start_date'       => 'required|date',
+            'end_date'         => 'required|date|after_or_equal:start_date',
+            'is_active'        => 'boolean',
         ]);
+
+        // Handle checkbox (tidak terkirim jika tidak dicentang)
+        $data['is_active'] = $request->has('is_active');
 
         Batch::create($data);
 
@@ -48,11 +51,14 @@ class BatchController extends Controller
     public function update(Request $request, Batch $batch)
     {
         $data = $request->validate([
-            'name'       => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date',
-            'is_active'  => 'boolean',
+            'batch_name'       => 'required|string|max:255',
+            'start_date'       => 'required|date',
+            'end_date'         => 'required|date|after_or_equal:start_date',
+            'is_active'        => 'boolean',
         ]);
+
+        // Handle checkbox
+        $data['is_active'] = $request->has('is_active');
 
         $batch->update($data);
 

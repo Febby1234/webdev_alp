@@ -11,8 +11,7 @@ class Payment extends Model
         'amount',
         'proof_image',
         'status',
-        'note',
-        'verified_by',
+        'verified_by'
     ];
 
     protected $casts = [
@@ -55,7 +54,7 @@ class Payment extends Model
     public function getStatusBadge(): array
     {
         $badges = [
-            'pending' => ['label' => 'Menunggu Verifikasi', 'color' => 'warning'],
+            'pending'  => ['label' => 'Menunggu Verifikasi', 'color' => 'warning'],
             'verified' => ['label' => 'Terverifikasi', 'color' => 'success'],
             'rejected' => ['label' => 'Ditolak', 'color' => 'danger'],
         ];

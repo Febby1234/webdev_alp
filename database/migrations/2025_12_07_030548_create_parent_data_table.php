@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('mother_name')->nullable();
             $table->string('mother_job')->nullable();
             $table->string('mother_phone')->nullable();
-            $table->string('guardian_name')->nullable();
-            $table->string('contact')->nullable();
             $table->timestamps();
         });
     }

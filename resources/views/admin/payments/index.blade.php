@@ -35,8 +35,8 @@
                                 <p class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] ?? 0 }}</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-gray-600">Approved</p>
-                                <p class="text-2xl font-bold text-green-600">{{ $stats['approved'] ?? 0 }}</p>
+                                <p class="text-gray-600">Verified</p>
+                                <p class="text-2xl font-bold text-green-600">{{ $stats['verified'] ?? 0 }}</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-gray-600">Rejected</p>
@@ -50,7 +50,7 @@
                         <select name="status" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
                             <option value="">Semua Status</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>Verified</option>
                             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
 
@@ -122,13 +122,13 @@
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                                     <span class="text-blue-600 font-semibold text-sm">
-                                                        {{ substr($payment->registration->personalDetail->fullname ?? $payment->registration->user->name ?? 'U', 0, 1) }}
+                                                        {{ substr($payment->registration->personalDetail->full_name ?? $payment->registration->user->name ?? 'U', 0, 1) }}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $payment->registration->personalDetail->fullname ?? $payment->registration->user->name ?? '-' }}
+                                                    {{ $payment->registration->personalDetail->full_name ?? $payment->registration->user->name ?? '-' }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">
                                                     {{ $payment->registration->registration_code ?? '-' }}
@@ -145,17 +145,6 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">
-                                            {{ $payment->sender_bank ?? '-' }}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            {{ $payment->sender_account_name ?? '-' }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">
-                                            {{ $payment->payment_date?->format('d M Y') ?? $payment->created_at->format('d M Y') }}
-                                        </div>
                                         <div class="text-xs text-gray-500">
                                             {{ $payment->created_at->format('H:i') }}
                                         </div>

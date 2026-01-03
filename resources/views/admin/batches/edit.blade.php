@@ -26,16 +26,16 @@
                         <div class="space-y-6">
                             {{-- Batch Name --}}
                             <div>
-                                <x-input-label for="batch_name" :value="__('Nama Gelombang')" />
+                                <x-input-label for="name" :value="__('Nama Gelombang')" />
                                 <x-text-input
-                                    id="batch_name"
+                                    id="name"
                                     class="block mt-1 w-full"
                                     type="text"
-                                    name="batch_name"
-                                    :value="old('batch_name', $batch->batch_name)"
+                                    name="name"
+                                    :value="old('name', $batch->name)"
                                     required
                                     autofocus />
-                                <x-input-error :messages="$errors->get('batch_name')" class="mt-2" />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
                             </div>
 
                             {{-- Date Range --}}
@@ -47,7 +47,7 @@
                                         class="block mt-1 w-full"
                                         type="date"
                                         name="start_date"
-                                        :value="old('start_date', $batch->start_date)"
+                                        :value="old('start_date', $batch->start_date instanceof \Carbon\Carbon ? $batch->start_date->format('Y-m-d') : $batch->start_date)"
                                         required />
                                     <x-input-error :messages="$errors->get('start_date')" class="mt-2" />
                                 </div>
@@ -59,7 +59,7 @@
                                         class="block mt-1 w-full"
                                         type="date"
                                         name="end_date"
-                                        :value="old('end_date', $batch->end_date)"
+                                        :value="old('end_date', $batch->end_date instanceof \Carbon\Carbon ? $batch->end_date->format('Y-m-d') : $batch->end_date)"
                                         required />
                                     <x-input-error :messages="$errors->get('end_date')" class="mt-2" />
                                 </div>

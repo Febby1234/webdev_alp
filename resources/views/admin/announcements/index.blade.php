@@ -128,4 +128,4 @@
             </div>
         </div>
     </div>
-</x-mainlayout>
+</x-main-layout>

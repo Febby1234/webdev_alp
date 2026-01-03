@@ -139,13 +139,13 @@
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                                     <span class="text-blue-600 font-semibold text-sm">
-                                                        {{ substr($registration->personalDetail->fullname ?? $registration->user->name ?? 'U', 0, 1) }}
+                                                        {{ substr($registration->personalDetail->full_name ?? $registration->user->name ?? 'U', 0, 1) }}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $registration->personalDetail->fullname ?? $registration->user->name ?? '-' }}
+                                                    {{ $registration->personalDetail->full_name ?? $registration->user->name ?? '-' }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">
                                                     {{ $registration->personalDetail->phone ?? $registration->user->email ?? '-' }}

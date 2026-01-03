@@ -24,6 +24,23 @@
                         @method('PATCH')
 
                         <div class="space-y-6">
+                            {{-- Batch --}}
+                            <div>
+                                <x-input-label for="batch_id" :value="__('Gelombang')" />
+                                <select id="batch_id"
+                                        name="batch_id"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
+                                    <option value="">Pilih Gelombang (Opsional)</option>
+                                    @foreach($batches as $batch)
+                                    <option value="{{ $batch->id }}" {{ old('batch_id', $schedule->batch_id ?? '') == $batch->id ? 'selected' : '' }}>
+                                        {{ $batch->batch_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('batch_id')" class="mt-2" />
+                                <p class="text-sm text-gray-500 mt-1">Jadwal akan berlaku untuk gelombang yang dipilih</p>
+                            </div>
+
                             {{-- Exam Type --}}
                             <div>
                                 <x-input-label for="type" :value="__('Jenis Ujian')" />
@@ -77,33 +94,6 @@
                                 <x-input-error :messages="$errors->get('location')" class="mt-2" />
                             </div>
 
-                            {{-- Capacity (Optional) --}}
-                            <div>
-                                <x-input-label for="capacity" :value="__('Kapasitas (Opsional)')" />
-                                <x-text-input id="capacity"
-                                              class="block mt-1 w-full"
-                                              type="number"
-                                              name="capacity"
-                                              :value="old('capacity', $schedule->capacity)"
-                                              min="{{ $schedule->registrations()->count() }}" />
-                                <x-input-error :messages="$errors->get('capacity')" class="mt-2" />
-                                @if($schedule->registrations()->count() > 0)
-                                <p class="text-sm text-yellow-600 mt-1">
-                                    ⚠️ Minimal kapasitas: {{ $schedule->registrations()->count() }} (sesuai jumlah peserta terdaftar)
-                                </p>
-                                @endif
-                            </div>
-
-                            {{-- Notes (Optional) --}}
-                            <div>
-                                <x-input-label for="notes" :value="__('Catatan (Opsional)')" />
-                                <textarea id="notes"
-                                          name="notes"
-                                          rows="3"
-                                          class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">{{ old('notes', $schedule->notes) }}</textarea>
-                                <x-input-error :messages="$errors->get('notes')" class="mt-2" />
-                            </div>
-
                             {{-- Statistics --}}
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 <h4 class="font-semibold text-blue-900 mb-3">Statistik Jadwal</h4>
@@ -111,12 +101,6 @@
                                     <div>
                                         <p class="text-xs text-blue-700">Total Peserta Terdaftar</p>
                                         <p class="text-2xl font-bold text-blue-900">{{ $schedule->registrations()->count() }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-blue-700">Kapasitas</p>
-                                        <p class="text-2xl font-bold text-blue-900">
-                                            {{ $schedule->capacity ?? 'Unlimited' }}
-                                        </p>
                                     </div>
                                     <div>
                                         <p class="text-xs text-blue-700">Dibuat</p>

@@ -25,9 +25,9 @@
                         <div class="space-y-6">
                             {{-- Batch Name --}}
                             <div>
-                                <x-input-label for="batch_name" :value="__('Nama Gelombang')" />
+                                <x-input-label for="name" :value="__('Nama Gelombang')" />
                                 <x-text-input
-                                    id="batch_name"
+                                    id="name"
                                     class="block mt-1 w-full"
                                     type="text"
                                     name="batch_name"

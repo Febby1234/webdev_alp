@@ -8,10 +8,10 @@ class Document extends Model
 {
     protected $fillable = [
         'registration_id',
+        'document_name',
         'type',
         'file_path',
         'status',
-        'note',
     ];
 
     // RELATIONSHIPS
@@ -57,12 +57,36 @@ class Document extends Model
     }
 
     /**
+     * Check if document is verified
+     */
+    public function isVerified(): bool
+    {
+        return $this->status === 'verified';
+    }
+
+    /**
+     * Check if document is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Check if document is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
      * Get status label with color
      */
     public function getStatusBadge(): array
     {
         $badges = [
-            'pending' => ['label' => 'Menunggu Verifikasi', 'color' => 'warning'],
+            'pending'  => ['label' => 'Menunggu Verifikasi', 'color' => 'warning'],
             'verified' => ['label' => 'Terverifikasi', 'color' => 'success'],
             'rejected' => ['label' => 'Ditolak', 'color' => 'danger'],
         ];

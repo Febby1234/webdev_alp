@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Registration;
 use App\Models\Major;
+use App\Exports\RegistrationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Batch;
 use Illuminate\Http\Request;
 
@@ -13,13 +15,40 @@ class RegistrationController extends Controller
     /**
      * Tampilkan semua registrasi
      */
-    public function index()
+    public function index(Request $request)
     {
-        $registrations = Registration::with(['user', 'major', 'batch'])
-            ->latest()
-            ->paginate(20);
+        $query = Registration::with(['user', 'major', 'batch', 'personalDetail']);
 
-        return view('admin.registrations.index', compact('registrations'));
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('registration_code', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('personalDetail', function ($q) use ($search) {
+                        $q->where('full_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by major
+        if ($request->filled('major_id')) {
+            $query->where('major_id', $request->major_id);
+        }
+
+        $registrations = $query->latest()->paginate(20);
+
+        // Get majors untuk filter dropdown
+        $majors = Major::all();
+
+        return view('admin.registrations.index', compact('registrations', 'majors'));
     }
 
     /**
@@ -32,7 +61,9 @@ class RegistrationController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.registrations.index', compact('registrations', 'status'));
+        $majors = Major::all();
+
+        return view('admin.registrations.index', compact('registrations', 'status', 'majors'));
     }
 
     /**
@@ -70,7 +101,6 @@ class RegistrationController extends Controller
     {
         $request->validate([
             'final_status' => 'required|in:accepted,rejected',
-            'note'         => 'nullable|string|max:500',
         ]);
 
         $registration->update([
@@ -87,10 +117,10 @@ class RegistrationController extends Controller
      */
     public function export(Request $request)
     {
-        // TODO: Implement Excel export
-        // Bisa pakai Laravel Excel package
+        $filters = $request->only(['status', 'major_id', 'batch_id']);
+        $filename = 'pendaftar_' . date('Y-m-d_His') . '.xlsx';
 
-        return back()->with('info', 'Export feature coming soon!');
+        return Excel::download(new RegistrationsExport($filters), $filename);
     }
 
     /**

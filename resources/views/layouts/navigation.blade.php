@@ -99,7 +99,7 @@
                             <x-nav-link :href="route('interviewer.dashboard')" :active="request()->routeIs('interviewer.dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('interviewer.exam.index')" :active="request()->routeIs('interviewer.exam.*')">
+                            <x-nav-link :href="route('interviewer.participants.index')" :active="request()->routeIs('interviewer.participants.*')">
                                 {{ __('Penilaian') }}
                             </x-nav-link>
                         </div>
@@ -216,7 +216,7 @@
                     <x-responsive-nav-link :href="route('interviewer.dashboard')" :active="request()->routeIs('interviewer.dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('interviewer.exam.index')" :active="request()->routeIs('interviewer.exam.*')">
+                    <x-responsive-nav-link :href="route('interviewer.participants.index')" :active="request()->routeIs('interviewer.participants.*')">
                         {{ __('Penilaian') }}
                     </x-responsive-nav-link>
                 @endif

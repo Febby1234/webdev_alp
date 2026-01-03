@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Major;
 use App\Models\Announcement;
 use App\Models\Schedule;
+use App\Models\Registration;
 use Illuminate\Http\Request;
 
 class PublicController extends Controller
@@ -12,8 +13,8 @@ class PublicController extends Controller
     public function welcome()
     {
         $stats = [
-            'total_students' => 1000,
-            'total_majors' => Major::count(),
+            'total_students' => Registration::count(),
+            'total_majors' => Major::where('is_active', true)->count(),
         ];
 
         $majors = Major::where('is_active', true)
@@ -44,15 +45,17 @@ class PublicController extends Controller
 
     public function schedules()
     {
-        $schedules = Schedule::orderBy('date')->orderBy('time')->get();
+        $schedules = Schedule::orderBy('date')
+            ->orderBy('time')
+            ->get();
+
         return view('public.schedules', compact('schedules'));
     }
 
     public function announcements()
     {
-        $announcements = Announcement::where('is_published', true)
-            ->latest()
-            ->paginate(10);
+        // Cek apakah kolom is_published ada, jika tidak langsung ambil semua
+        $announcements = Announcement::latest()->paginate(10);
 
         return view('public.announcements', compact('announcements'));
     }

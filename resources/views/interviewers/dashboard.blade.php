@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-main-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard Interviewer') }}
@@ -101,30 +101,32 @@
                         <h3 class="text-lg font-semibold mb-4 text-gray-900">Jadwal Hari Ini</h3>
 
                         <div class="space-y-3">
-                            @forelse($today_interviews ?? [] as $interview)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
-                                        {{ substr($interview->participant->name ?? 'U', 0, 1) }}
+                            @forelse($today_schedule ?? [] as $schedule)
+                                @foreach($schedule->registrations as $registration)
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
+                                            {{ substr($registration->personalDetail->full_name ?? 'U', 0, 1) }}
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="font-medium text-gray-900">{{ $registration->personalDetail->full_name ?? '-' }}</p>
+                                            <p class="text-xs text-gray-600">{{ $schedule->time }} WIB - {{ $schedule->location }}</p>
+                                        </div>
                                     </div>
-                                    <div class="ml-3">
-                                        <p class="font-medium text-gray-900">{{ $interview->participant->name ?? '-' }}</p>
-                                        <p class="text-xs text-gray-600">{{ $interview->time }} WIB</p>
+                                    <div class="text-right">
+                                        @if($registration->examResults->count() > 0)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Selesai
+                                        </span>
+                                        @else
+                                        <a href="{{ route('interviewer.participants.show', $registration->id) }}"
+                                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Interview →
+                                        </a>
+                                        @endif
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    @if($interview->status == 'completed')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Selesai
-                                    </span>
-                                    @else
-                                    <a href="{{ route('interviewer.participants.show', $interview->participant_id) }}"
-                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        Interview →
-                                    </a>
-                                    @endif
-                                </div>
-                            </div>
+                                @endforeach
                             @empty
                             <div class="text-center py-8">
                                 <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,14 +155,14 @@
                             <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 font-bold">
-                                        {{ substr($participant->personalDetail->fullname ?? 'U', 0, 1) }}
+                                        {{ substr($participant->personalDetail->full_name ?? 'U', 0, 1) }}
                                     </div>
                                     <div class="ml-3">
-                                        <p class="font-medium text-gray-900">{{ $participant->personalDetail->fullname ?? '-' }}</p>
+                                        <p class="font-medium text-gray-900">{{ $participant->personalDetail->full_name ?? '-' }}</p>
                                         <p class="text-xs text-gray-600">{{ $participant->registration_code }}</p>
                                     </div>
                                 </div>
-                                <a href="{{ route('interviewer.participants.show', $participant->registration_id) }}"
+                                <a href="{{ route('interviewer.participants.show', $participant->id) }}"
                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                     Detail →
                                 </a>
@@ -196,8 +198,11 @@
                                 <span class="text-2xl font-bold text-gray-900">{{ $completed_interviews ?? 0 }}</span>
                                 <span class="text-sm text-gray-500">dari {{ $total_participants ?? 0 }}</span>
                             </div>
+                            @php
+                                $percentage = ($total_participants ?? 0) > 0 ? (($completed_interviews ?? 0) / ($total_participants ?? 1)) * 100 : 0;
+                            @endphp
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ $total_participants > 0 ? (($completed_interviews ?? 0) / $total_participants) * 100 : 0 }}%"></div>
+                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
                             </div>
                         </div>
 
@@ -218,4 +223,4 @@
 
         </div>
     </div>
-</x-app-layout>
+</x-main-layout>

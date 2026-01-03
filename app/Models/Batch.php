@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Batch extends Model
 {
     protected $fillable = [
-        'name',
+        'batch_name',   // SESUAI DB (bukan 'name')
         'start_date',
         'end_date',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date',
-        'is_active' => 'boolean',
+        'end_date'   => 'date',
+        'is_active'  => 'boolean',
     ];
 
     // RELATIONSHIPS
@@ -29,6 +29,13 @@ class Batch extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    // ACCESSOR - Untuk kompatibilitas dengan view yang pakai $batch->name
+
+    public function getNameAttribute(): ?string
+    {
+        return $this->batch_name;
     }
 
     // HELPER METHODS
@@ -84,6 +91,14 @@ class Batch extends Model
         } else {
             return 'Ditutup';
         }
+    }
+
+    /**
+     * Get formatted date range
+     */
+    public function getDateRange(): string
+    {
+        return $this->start_date->format('d M Y') . ' - ' . $this->end_date->format('d M Y');
     }
 
     // SCOPES

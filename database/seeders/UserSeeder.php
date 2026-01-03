@@ -34,8 +34,8 @@ class UserSeeder extends Seeder
         // Interviewer 1
         User::create([
             'name' => 'Dr. Budi Santoso',
-            'email' => 'interviewer1@example.com',
-            'password' => Hash::make('password'),
+            'email' => 'interviewer1@gmail.com',
+            'password' => 12345678,
             'role' => 'interviewer',
             'email_verified_at' => now(),
         ]);
@@ -49,11 +49,11 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // Student Demo
+        // Student
         User::create([
             'name' => 'Student Demo',
-            'email' => 'student@example.com',
-            'password' => Hash::make('password'),
+            'email' => 'student@gmail.com',
+            'password' => 12345678,
             'role' => 'student',
             'email_verified_at' => now(),
         ]);

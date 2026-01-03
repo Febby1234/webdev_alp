@@ -23,6 +23,23 @@
                         @csrf
 
                         <div class="space-y-6">
+                            {{-- Batch --}}
+                            <div>
+                                <x-input-label for="batch_id" :value="__('Gelombang')" />
+                                <select id="batch_id"
+                                        name="batch_id"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
+                                    <option value="">Pilih Gelombang (Opsional)</option>
+                                    @foreach($batches as $batch)
+                                    <option value="{{ $batch->id }}" {{ old('batch_id', $schedule->batch_id ?? '') == $batch->id ? 'selected' : '' }}>
+                                        {{ $batch->batch_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('batch_id')" class="mt-2" />
+                                <p class="text-sm text-gray-500 mt-1">Jadwal akan berlaku untuk gelombang yang dipilih</p>
+                            </div>
+                            
                             {{-- Exam Type --}}
                             <div>
                                 <x-input-label for="type" :value="__('Jenis Ujian')" />
@@ -77,31 +94,6 @@
                                               placeholder="Contoh: Gedung A Lantai 2, Ruang 201"
                                               required />
                                 <x-input-error :messages="$errors->get('location')" class="mt-2" />
-                            </div>
-
-                            {{-- Capacity (Optional) --}}
-                            <div>
-                                <x-input-label for="capacity" :value="__('Kapasitas (Opsional)')" />
-                                <x-text-input id="capacity"
-                                              class="block mt-1 w-full"
-                                              type="number"
-                                              name="capacity"
-                                              :value="old('capacity')"
-                                              min="1"
-                                              placeholder="Jumlah peserta maksimal" />
-                                <x-input-error :messages="$errors->get('capacity')" class="mt-2" />
-                                <p class="text-sm text-gray-500 mt-1">Kosongkan jika tidak ada batasan kapasitas</p>
-                            </div>
-
-                            {{-- Notes (Optional) --}}
-                            <div>
-                                <x-input-label for="notes" :value="__('Catatan (Opsional)')" />
-                                <textarea id="notes"
-                                          name="notes"
-                                          rows="3"
-                                          class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
-                                          placeholder="Catatan atau instruksi tambahan untuk peserta ujian">{{ old('notes') }}</textarea>
-                                <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                             </div>
 
                             {{-- Info Box --}}

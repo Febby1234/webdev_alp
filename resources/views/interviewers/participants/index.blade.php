@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-main-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Daftar Peserta Interview') }}
@@ -7,6 +7,13 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- Success Message --}}
+            @if(session('success'))
+                <div class="mb-6">
+                    <x-alert type="success">{{ session('success') }}</x-alert>
+                </div>
+            @endif
 
             {{-- Filter --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
@@ -30,8 +37,8 @@
                             <select name="major_id" class="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
                                 <option value="">Semua Jurusan</option>
                                 @foreach($majors ?? [] as $major)
-                                <option value="{{ $major->majors_id }}" {{ request('major_id') == $major->majors_id ? 'selected' : '' }}>
-                                    {{ $major->majors_name }}
+                                <option value="{{ $major->id }}" {{ request('major_id') == $major->id ? 'selected' : '' }}>
+                                    {{ $major->name }}
                                 </option>
                                 @endforeach
                             </select>
@@ -82,27 +89,28 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
-                                                {{ substr($participant->personalDetail->fullname ?? 'U', 0, 1) }}
+                                                {{ substr($participant->personalDetail->full_name ?? 'U', 0, 1) }}
                                             </div>
                                             <div class="ml-3">
-                                                <p class="text-sm font-medium text-gray-900">{{ $participant->personalDetail->fullname ?? '-' }}</p>
+                                                <p class="text-sm font-medium text-gray-900">{{ $participant->personalDetail->full_name ?? '-' }}</p>
                                                 <p class="text-xs text-gray-500">{{ $participant->personalDetail->phone ?? '-' }}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $participant->major->majors_name ?? '-' }}
+                                        {{ $participant->major->name ?? '-' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        @if($participant->schedule)
-                                        {{ date('d M Y', strtotime($participant->schedule->date)) }}<br>
-                                        <span class="text-xs">{{ date('H:i', strtotime($participant->schedule->time)) }} WIB</span>
+                                        @if($participant->schedules && $participant->schedules->count() > 0)
+                                            @php $schedule = $participant->schedules->first(); @endphp
+                                            {{ $schedule->date->format('d M Y') }}<br>
+                                            <span class="text-xs">{{ $schedule->time }} WIB</span>
                                         @else
                                         <span class="text-gray-400">Belum dijadwalkan</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($participant->examResult)
+                                        @if($participant->examResults && $participant->examResults->count() > 0)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             Selesai
                                         </span>
@@ -113,16 +121,16 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        @if($participant->examResult)
-                                        <span class="font-bold text-green-600">{{ $participant->examResult->score }}</span>
+                                        @if($participant->examResults && $participant->examResults->count() > 0)
+                                        <span class="font-bold text-green-600">{{ $participant->examResults->first()->score }}</span>
                                         @else
                                         <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('interviewer.participants.show', $participant->registration_id) }}"
+                                        <a href="{{ route('interviewer.participants.show', $participant->id) }}"
                                            class="text-purple-600 hover:text-purple-900">
-                                            {{ $participant->examResult ? 'Lihat' : 'Interview' }}
+                                            {{ $participant->examResults && $participant->examResults->count() > 0 ? 'Lihat' : 'Interview' }}
                                         </a>
                                     </td>
                                 </tr>
@@ -140,7 +148,7 @@
                     {{-- Pagination --}}
                     @if($participants && $participants->hasPages())
                     <div class="mt-6">
-                        {{ $participants->links() }}
+                        {{ $participants->appends(request()->query())->links() }}
                     </div>
                     @endif
                 </div>
@@ -148,4 +156,4 @@
 
         </div>
     </div>
-</x-app-layout>
+</x-main-layout>
