@@ -59,7 +59,7 @@
                     class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor"
+                            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -77,7 +77,7 @@
                     class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor"
+                            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

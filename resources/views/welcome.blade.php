@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPDB {{ date('Y') }} - Penerimaan Peserta Didik Baru</title>
+    <title>PMB {{ date('Y') }} - Penerimaan Peserta Didik Baru</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -17,7 +17,7 @@
                         <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
-                        <span class="ml-2 text-xl font-bold text-gray-900">PPDB {{ date('Y') }}</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">PMB {{ date('Y') }}</span>
                     </div>
                 </div>
                 <div class="hidden md:flex md:items-center md:space-x-8">
@@ -52,7 +52,7 @@
                         Wujudkan Masa Depan Cerahmu Bersama Kami
                     </h1>
                     <p class="text-xl text-blue-100 mb-8">
-                        Bergabunglah dengan ribuan siswa yang telah meraih impian mereka. Pendaftaran PPDB {{ date('Y') }} sudah dibuka!
+                        Bergabunglah dengan ribuan siswa yang telah meraih impian mereka.
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <a href="{{ route('register') }}" class="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg">
@@ -61,37 +61,6 @@
                         <a href="{{ route('public.requirements') }}" class="px-8 py-4 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-600 transition">
                             Lihat Persyaratan
                         </a>
-                    </div>
-                </div>
-                <div class="hidden md:block">
-                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-                        <h3 class="text-2xl font-bold mb-6">Info Pendaftaran</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>Pendaftaran 100% Online</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>Gratis Biaya Pendaftaran</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>Pengumuman Transparan</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>Akses 24/7</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -165,7 +134,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold text-gray-900 mb-4">Pengumuman Terbaru</h2>
-                <p class="text-xl text-gray-600">Informasi penting seputar PPDB {{ date('Y') }}</p>
+                <p class="text-xl text-gray-600">Informasi penting seputar PMB {{ date('Y') }}</p>
             </div>
             <div class="grid md:grid-cols-2 gap-8">
                 @forelse($announcements ?? [] as $announcement)
@@ -222,7 +191,7 @@
                         <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
-                        <span class="ml-2 text-xl font-bold text-white">PPDB {{ date('Y') }}</span>
+                        <span class="ml-2 text-xl font-bold text-white">PMB {{ date('Y') }}</span>
                     </div>
                     <p class="text-gray-400 mb-4">
                         Sistem Penerimaan Peserta Didik Baru online yang mudah, cepat, dan transparan.
@@ -240,14 +209,14 @@
                 <div>
                     <h3 class="text-white font-semibold mb-4">Kontak</h3>
                     <ul class="space-y-2 text-sm">
-                        <li>Email: info@ppdb.sch.id</li>
+                        <li>Email: info@PMB.sch.id</li>
                         <li>Telp: (021) 123-4567</li>
                         <li>WhatsApp: 0812-3456-7890</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; {{ date('Y') }} PPDB. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} PMB. All rights reserved.</p>
             </div>
         </div>
     </footer>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'PPDB ' . date('Y'))</title>
+    <title>@yield('title', 'PMB ' . date('Y'))</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -16,7 +16,7 @@
                         <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
-                        <span class="ml-2 text-xl font-bold text-gray-900">PPDB {{ date('Y') }}</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">PMB {{ date('Y') }}</span>
                     </a>
                 </div>
                 <div class="hidden md:flex md:items-center md:space-x-8">
@@ -54,7 +54,7 @@
                         <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
-                        <span class="ml-2 text-xl font-bold text-white">PPDB {{ date('Y') }}</span>
+                        <span class="ml-2 text-xl font-bold text-white">PMB {{ date('Y') }}</span>
                     </div>
                     <p class="text-gray-400">
                         Sistem Penerimaan Peserta Didik Baru online yang mudah, cepat, dan transparan.
@@ -72,14 +72,14 @@
                 <div>
                     <h3 class="text-white font-semibold mb-4">Kontak</h3>
                     <ul class="space-y-2 text-sm">
-                        <li>Email: info@ppdb.sch.id</li>
+                        <li>Email: info@pmb.sch.id</li>
                         <li>Telp: (021) 123-4567</li>
                         <li>WhatsApp: 0812-3456-7890</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; {{ date('Y') }} PPDB. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} PMB. All rights reserved.</p>
             </div>
         </div>
     </footer>

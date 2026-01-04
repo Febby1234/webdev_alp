@@ -5,98 +5,149 @@ namespace App\Http\Controllers\Student;
 use App\Models\Registration;
 use App\Models\Major;
 use App\Models\Batch;
+use App\Models\PersonalDetail;
+use App\Models\ParentData;
+use App\Models\SchoolOrigin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RegistrationController extends Controller
 {
-    /**
-     * Tampilkan form registrasi (Ganti nama dari index ke create)
-     */
     public function create()
     {
-        // Cek apakah user sudah pernah registrasi
+        // Cek user sudah daftar atau belum
         $registration = Registration::where('user_id', Auth::id())->first();
 
         if ($registration) {
-            // Pastikan route 'student.dashboard' ada di web.php
             return redirect()->route('student.dashboard')
                 ->with('info', 'Anda sudah melakukan registrasi sebelumnya.');
         }
 
-        // Ambil major dan batch yang aktif
         $majors = Major::where('is_active', true)->get();
         $batches = Batch::whereDate('start_date', '<=', now())
             ->whereDate('end_date', '>=', now())
+            ->where('is_active', true)
             ->get();
 
         return view('student.registrations.create', compact('majors', 'batches'));
     }
 
-    /**
-     * Simpan registrasi baru
-     */
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // 1. VALIDASI DATA INPUT (Sesuai name="" di HTML view)
+        $validated = $request->validate([
+            // Data Utama
             'major_id' => 'required|exists:majors,id',
-            'batch_id' => 'required|exists:batches,id',
+
+            // Biodata
+            'fullname'       => 'required|string|max:255',
+            'gender'         => 'required|in:L,P', // Validasi input harus L atau P
+            'place_of_birth' => 'required|string|max:255',
+            'date_of_birth'  => 'required|date',
+            'address'        => 'required|string',
+            'phone'          => 'required|string|max:20',
+
+            // Orang Tua
+            'father_name'   => 'required|string|max:255',
+            'father_job'    => 'nullable|string|max:255',
+            'father_phone'  => 'nullable|string|max:20',
+            'mother_name'   => 'required|string|max:255',
+            'mother_job'    => 'nullable|string|max:255',
+            'mother_phone'  => 'nullable|string|max:20',
+
+            // Sekolah
+            'school_name'     => 'required|string|max:255',
+            'graduation_year' => 'required|numeric',
+            'average_grade'   => 'nullable|numeric',
         ]);
 
-        $data['user_id'] = Auth::id();
+        // Cek Batch Aktif
+        $activeBatch = Batch::whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->where('is_active', true)
+            ->first();
 
-        // Cek apakah user sudah pernah registrasi
-        $existingReg = Registration::where('user_id', $data['user_id'])->first();
-
-        if ($existingReg) {
-            return back()->with('error', 'Anda sudah melakukan registrasi sebelumnya!');
+        if (!$activeBatch) {
+            return back()->with('error', 'Tidak ada gelombang pendaftaran aktif.');
         }
 
-        // Cek kuota major (hanya hitung registrasi yang aktif/accepted)
-        $major = Major::find($data['major_id']);
-        $registeredCount = Registration::where('major_id', $data['major_id'])
-            ->where('batch_id', $data['batch_id'])
-            ->whereIn('status', ['paid', 'exam_scheduled', 'interview_scheduled', 'finished', 'accepted'])
-            ->count();
-
-        if ($registeredCount >= $major->quota) {
-            return back()->with('error', 'Kuota untuk jurusan ini sudah penuh!');
+        // Cek Kuota
+        $major = Major::find($validated['major_id']);
+        if ($major->registrations()->count() >= $major->quota) {
+            return back()->with('error', 'Kuota penuh.');
         }
 
-        // Buat registrasi baru
-        $registration = Registration::create($data);
+        // 2. MULAI PENYIMPANAN DATA (Transaction)
+        try {
+            DB::beginTransaction();
 
-        // PERHATIAN:
-        // Di kode Anda sebelumnya tertulis: redirect()->route('student.personal.edit')
-        // Tapi di route list Anda adanya: 'student.profile.edit'
-        // Saya ubah ke 'student.profile.edit' agar tidak error RouteNotFound nanti.
-        // Jika Anda memang punya route 'student.personal.edit', silakan kembalikan.
+            // A. Simpan Registration
+            $registration = Registration::create([
+                'user_id'  => Auth::id(),
+                'major_id' => $validated['major_id'],
+                'batch_id' => $activeBatch->id,
+                'status'   => 'documents_pending',
+            ]);
 
-        return redirect()->route('student.profile.edit')
-            ->with('success', 'Registrasi berhasil! Silakan lengkapi data diri Anda. Kode Registrasi: ' . $registration->registration_code);
+            // B. Simpan Personal Detail (Mapping Data)
+            PersonalDetail::create([
+                'registration_id' => $registration->id,
+
+                // Mapping: Input 'fullname' -> DB 'full_name'
+                'full_name'       => $validated['fullname'],
+
+                // Konversi Gender: Input 'L'/'P' -> DB 'Laki-laki'/'Perempuan'
+                'gender'          => $validated['gender'] == 'L' ? 'Laki-laki' : 'Perempuan',
+
+                // Mapping: Input 'place_of_birth' -> DB 'birth_place'
+                'birth_place'     => $validated['place_of_birth'],
+                'birth_date'      => $validated['date_of_birth'],
+                'address'         => $validated['address'],
+                'phone'           => $validated['phone'],
+            ]);
+
+            // C. Simpan Parent Data
+            ParentData::create([
+                'registration_id' => $registration->id,
+                'father_name'     => $validated['father_name'],
+                'father_job'      => $validated['father_job'],
+                'father_phone'    => $validated['father_phone'],
+                'mother_name'     => $validated['mother_name'],
+                'mother_job'      => $validated['mother_job'],
+                'mother_phone'    => $validated['mother_phone'],
+            ]);
+
+            // D. Simpan School Origin
+            SchoolOrigin::create([
+                'registration_id'    => $registration->id,
+                'school_origin_name' => $validated['school_name'], // Mapping school_name
+                'graduation_year'    => $validated['graduation_year'],
+                'average_grade'      => $validated['average_grade'],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('student.documents.index')
+                ->with('success', 'Pendaftaran berhasil disimpan!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage())->withInput();
+        }
     }
 
-    /**
-     * Tampilkan detail registrasi
-     */
     public function show()
     {
         $registration = Registration::where('user_id', Auth::id())
-            ->with([
-                'user', 'major', 'batch',
-                // Pastikan relasi ini ada di Model Registration Anda
-                // 'personalDetail', 'parents', 'schoolOrigin',
-                'documents', 'payment', 'examResults' //, 'schedules'
-            ])
+            ->with(['user', 'major', 'batch', 'personalDetail', 'documents'])
             ->first();
 
         if (!$registration) {
-            // Ini akan memanggil fungsi create() di atas
-            return redirect()->route('student.registration.create')
-                ->with('error', 'Anda belum melakukan registrasi.');
+            return redirect()->route('student.registration.create');
         }
 
-        return view('student.registration.show', compact('registration'));
+        return view('student.registrations.show', compact('registration'));
     }
 }

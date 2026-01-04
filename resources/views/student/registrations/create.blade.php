@@ -245,7 +245,7 @@
 
                             <div class="ml-auto flex gap-3">
                                 <button type="button" id="btn-next" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                    Selanjutnya →
+                                    Selanjutnya
                                 </button>
                                 <button type="submit" id="btn-submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" style="display: none;">
                                     Submit Pendaftaran
@@ -264,41 +264,87 @@
         const totalSteps = 4;
 
         function showStep(step) {
-            // Hide all steps
+            // Sembunyikan semua step
             document.querySelectorAll('.step-content').forEach(el => {
                 el.style.display = 'none';
             });
 
-            // Show current step
+            // Tampilkan step saat ini
             document.getElementById(`step-${step}`).style.display = 'block';
 
-            // Update button visibility
+            // Atur visibilitas tombol
             document.getElementById('btn-prev').style.display = step > 1 ? 'block' : 'none';
             document.getElementById('btn-next').style.display = step < totalSteps ? 'block' : 'none';
             document.getElementById('btn-submit').style.display = step === totalSteps ? 'block' : 'none';
 
-            // Update preview if on step 4
+            // Update indikator progress bar (opsional, biar cantik)
+            const progressBar = document.querySelector('.bg-blue-600.h-2');
+            if(progressBar) {
+                progressBar.style.width = `${(step / totalSteps) * 100}%`;
+            }
+
+            // Update teks step
+            const stepTitle = document.querySelector('.text-sm.text-gray-500');
+            if(stepTitle) {
+                const titles = ['Biodata Pribadi', 'Data Orang Tua', 'Asal Sekolah', 'Preview Data'];
+                stepTitle.textContent = titles[step - 1];
+            }
+
+            // Update preview jika masuk step 4
             if (step === 4) {
                 updatePreview();
             }
         }
 
         function updatePreview() {
+            // Helper untuk ambil teks dari select option
+            const getSelectedText = (id) => {
+                const el = document.getElementById(id);
+                return el.options[el.selectedIndex]?.text || '-';
+            };
+
             document.getElementById('preview-fullname').textContent = document.getElementById('fullname').value || '-';
             document.getElementById('preview-gender').textContent = document.getElementById('gender').value === 'L' ? 'Laki-laki' : 'Perempuan';
             document.getElementById('preview-birth').textContent = `${document.getElementById('place_of_birth').value}, ${document.getElementById('date_of_birth').value}`;
             document.getElementById('preview-phone').textContent = document.getElementById('phone').value || '-';
+
             document.getElementById('preview-father').textContent = document.getElementById('father_name').value || '-';
             document.getElementById('preview-mother').textContent = document.getElementById('mother_name').value || '-';
+
             document.getElementById('preview-school').textContent = document.getElementById('school_name').value || '-';
             document.getElementById('preview-year').textContent = document.getElementById('graduation_year').value || '-';
-            document.getElementById('preview-major').textContent = document.getElementById('major_id').options[document.getElementById('major_id').selectedIndex]?.text || '-';
+
+            // Ambil teks jurusan, buang info kuota dalam kurung biar rapi
+            let majorText = getSelectedText('major_id');
+            document.getElementById('preview-major').textContent = majorText;
         }
 
+        // --- VALIDASI SEBELUM NEXT ---
         document.getElementById('btn-next').addEventListener('click', () => {
             if (currentStep < totalSteps) {
-                currentStep++;
-                showStep(currentStep);
+                // Ambil container step saat ini
+                const currentStepDiv = document.getElementById(`step-${currentStep}`);
+
+                // Cari semua input/select/textarea di step ini
+                const inputs = currentStepDiv.querySelectorAll('input, select, textarea');
+                let isValid = true;
+
+                // Cek validitas satu per satu
+                for (const input of inputs) {
+                    if (!input.checkValidity()) {
+                        input.reportValidity(); // Tampilkan bubble error browser
+                        isValid = false;
+                        break; // Stop di error pertama
+                    }
+                }
+
+                // Jika valid, baru boleh lanjut
+                if (isValid) {
+                    currentStep++;
+                    showStep(currentStep);
+                    // Scroll ke atas biar user sadar ganti halaman
+                    window.scrollTo(0, 0);
+                }
             }
         });
 
@@ -306,6 +352,7 @@
             if (currentStep > 1) {
                 currentStep--;
                 showStep(currentStep);
+                window.scrollTo(0, 0);
             }
         });
 

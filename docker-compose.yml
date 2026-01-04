@@ -1,0 +1,46 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: grevi_web
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - global_proxy
+      - grevi_network
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grevi_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - grevi_network
+
+  db:
+    image: mysql:8.0
+    container_name: grevi_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: grevi_db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password123}
+    volumes:
+      - grevi_db_data:/var/lib/mysql
+    networks:
+      - grevi_network
+
+networks:
+  grevi_network:
+    driver: bridge
+  global_proxy:
+    external: true
+
+volumes:
+  tp_db_data:

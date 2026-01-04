@@ -73,67 +73,71 @@
                         <input type="hidden" name="type" value="{{ $type ?? 'document' }}">
 
                         <div class="space-y-6">
-                            {{-- File Upload Area --}}
-                            <div>
+
+                            {{-- Container Utama: Drop Zone & Preview --}}
+                            <div class="relative">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Pilih File <span class="text-red-500">*</span>
                                 </label>
-                                <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition cursor-pointer"
-                                     id="drop-zone"
+
+                                {{-- 1. DROP ZONE (Muncul saat belum ada file) --}}
+                                <div id="drop-zone"
+                                     class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition cursor-pointer"
                                      onclick="document.getElementById('document').click()">
                                     <div class="space-y-1 text-center">
                                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                         <div class="text-sm text-gray-600">
-                                            <span class="font-medium text-blue-600 hover:text-blue-500">Upload file</span>
+                                            <span class="font-medium text-blue-600 hover:text-blue-500">Klik untuk upload</span>
                                             <span class="pl-1">atau drag and drop</span>
                                         </div>
                                         <p class="text-xs text-gray-500">
                                             {{ strtoupper($document_type->format ?? 'PDF') }} hingga {{ $document_type->max_size ?? '2' }}MB
                                         </p>
                                     </div>
-                                    <input id="document"
-                                           name="document"
-                                           type="file"
-                                           class="sr-only"
-                                           accept="{{ ($document_type->format ?? 'pdf') === 'pdf' ? 'application/pdf' : 'image/*' }}"
-                                           required
-                                           onchange="handleFileSelect(event)">
                                 </div>
-                            </div>
 
-                            {{-- File Info Display --}}
-                            <div id="file-info" class="hidden p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center flex-1">
-                                        <svg class="w-10 h-10 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div class="ml-3">
-                                            <p class="font-semibold text-gray-900" id="file-name"></p>
-                                            <p class="text-sm text-gray-600" id="file-size"></p>
-                                        </div>
-                                    </div>
-                                    <button type="button"
-                                            onclick="removeFile()"
-                                            class="ml-4 text-red-600 hover:text-red-800 transition">
+                                {{-- 2. PREVIEW CONTAINER (Muncul saat sudah ada file, menggantikan Drop Zone) --}}
+                                <div id="preview-container" class="hidden mt-2 border-2 border-blue-500 rounded-lg p-4 bg-blue-50 relative">
+
+                                    {{-- Tombol Hapus (Silang) --}}
+                                    <button type="button" onclick="removeFile()" class="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 text-gray-400 hover:text-red-500 transition z-10">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
+
+                                    <div class="flex flex-col items-center">
+                                        {{-- Tempat Gambar --}}
+                                        <div id="image-preview-wrapper" class="hidden w-full mb-3">
+                                            <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded shadow-sm object-contain bg-white">
+                                        </div>
+
+                                        {{-- Tempat Icon File (Kalau PDF) --}}
+                                        <div id="file-icon-wrapper" class="hidden w-16 h-16 bg-red-100 rounded-lg items-center justify-center mb-3 text-red-500">
+                                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+
+                                        {{-- Info Nama File --}}
+                                        <p class="font-medium text-gray-900 text-center break-all px-4" id="file-name"></p>
+                                        <p class="text-xs text-gray-500 mt-1" id="file-size"></p>
+                                    </div>
                                 </div>
+
+                                {{-- Input File Asli (Hidden) --}}
+                                <input id="document"
+                                       name="document"
+                                       type="file"
+                                       class="hidden"
+                                       accept="{{ ($document_type->format ?? 'pdf') === 'pdf' ? 'application/pdf' : 'image/*' }}"
+                                       required
+                                       onchange="handleFileSelect(event)">
                             </div>
 
-                            {{-- Image Preview --}}
-                            <div id="preview-container" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Preview</label>
-                                <div class="border rounded-lg p-4 bg-gray-50">
-                                    <img id="preview-image" src="" alt="Preview" class="max-w-full max-h-96 mx-auto rounded shadow-sm">
-                                </div>
-                            </div>
-
-                            {{-- Notes (Optional) --}}
+                            {{-- Notes --}}
                             <div>
                                 <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
                                     Catatan (Opsional)
@@ -186,9 +190,11 @@
     </div>
 
     <script>
-        // Drag and drop functionality
         const dropZone = document.getElementById('drop-zone');
+        const previewContainer = document.getElementById('preview-container');
+        const fileInput = document.getElementById('document');
 
+        // Drag & Drop Events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
@@ -213,48 +219,51 @@
         dropZone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
             const files = dt.files;
-            document.getElementById('document').files = files;
+            fileInput.files = files;
             handleFileSelect({ target: { files: files } });
         }, false);
 
-        // File selection handler
+        // Handle File Selection
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Display file info
+            // 1. Sembunyikan Drop Zone
+            dropZone.classList.add('hidden');
+
+            // 2. Tampilkan Preview Container
+            previewContainer.classList.remove('hidden');
+
+            // 3. Update Info File
             document.getElementById('file-name').textContent = file.name;
             document.getElementById('file-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-            document.getElementById('file-info').classList.remove('hidden');
 
-            // Show preview for images
+            // 4. Cek Tipe File (Gambar atau PDF)
             if (file.type.startsWith('image/')) {
+                // Tampilkan Image Preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('preview-image').src = e.target.result;
-                    document.getElementById('preview-container').classList.remove('hidden');
+                    document.getElementById('image-preview-wrapper').classList.remove('hidden');
+                    document.getElementById('file-icon-wrapper').classList.add('hidden'); // Sembunyikan icon file
+                    document.getElementById('file-icon-wrapper').classList.remove('flex');
                 }
                 reader.readAsDataURL(file);
             } else {
-                document.getElementById('preview-container').classList.add('hidden');
+                // Tampilkan Icon File (misal PDF)
+                document.getElementById('image-preview-wrapper').classList.add('hidden');
+                document.getElementById('file-icon-wrapper').classList.remove('hidden');
+                document.getElementById('file-icon-wrapper').classList.add('flex');
             }
         }
 
-        // Remove file
+        // Remove File (Reset)
         function removeFile() {
-            document.getElementById('document').value = '';
-            document.getElementById('file-info').classList.add('hidden');
-            document.getElementById('preview-container').classList.add('hidden');
-        }
+            fileInput.value = ''; // Reset input
 
-        // Form validation
-        document.getElementById('upload-form').addEventListener('submit', function(e) {
-            const fileInput = document.getElementById('document');
-            if (!fileInput.files.length) {
-                e.preventDefault();
-                alert('Silakan pilih file terlebih dahulu!');
-                return false;
-            }
-        });
+            // Sembunyikan Preview, Munculkan Drop Zone
+            previewContainer.classList.add('hidden');
+            dropZone.classList.remove('hidden');
+        }
     </script>
 </x-main-layout>

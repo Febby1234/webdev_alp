@@ -3,10 +3,10 @@
 @section('title', 'Jadwal Ujian - PPDB ' . date('Y'))
 
 @section('content')
-<div class="bg-gradient-to-br from-orange-600 to-orange-800 py-16 text-white">
+<div class="bg-gradient-to-br from-blue-600 to-blue-800 py-16 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-4xl font-bold mb-4">Jadwal Ujian & Kegiatan</h1>
-        <p class="text-xl text-orange-100">Lihat jadwal lengkap ujian seleksi PPDB {{ date('Y') }}</p>
+        <p class="text-xl text-blue-100">Lihat jadwal lengkap ujian seleksi PPDB {{ date('Y') }}</p>
     </div>
 </div>
 
@@ -53,11 +53,11 @@
     <div class="grid md:grid-cols-2 gap-8">
         @forelse($schedules ?? [] as $schedule)
         <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-2xl font-bold">{{ $schedule->type }}</h3>
-                        <p class="text-orange-100 mt-1">{{ \Carbon\Carbon::parse($schedule->date)->format('d F Y') }}</p>
+                        <p class="text-blue-100 mt-1">{{ \Carbon\Carbon::parse($schedule->date)->format('d F Y') }}</p>
                     </div>
                     <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,8 +78,8 @@
                     </div>
                 </div>
                 @if($schedule->notes)
-                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <p class="text-sm text-orange-800">{{ $schedule->notes }}</p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800">{{ $schedule->notes }}</p>
                 </div>
                 @endif
             </div>

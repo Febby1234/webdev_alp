@@ -23,17 +23,52 @@ class DocumentController extends Controller
                 ->with('error', 'Anda belum melakukan registrasi.');
         }
 
-        $documents = $registration->documents;
+        // Ambil dokumen yang sudah diupload user, keyBy type agar mudah dicari
+        $uploadedDocuments = $registration->documents->keyBy('type');
 
-        // Daftar tipe dokumen yang diperlukan
-        $requiredDocuments = [
-            'KTP' => 'Kartu Tanda Penduduk',
-            'Ijazah' => 'Ijazah Terakhir',
-            'Foto' => 'Pas Foto 3x4',
-            'KK' => 'Kartu Keluarga',
+        // Definisi Persyaratan Dokumen (Samakan dengan method create)
+        $definitions = [
+            'KTP' => [
+                'name' => 'Kartu Tanda Penduduk',
+                'description' => 'Upload scan/foto KTP yang masih berlaku',
+            ],
+            'Ijazah' => [
+                'name' => 'Ijazah Terakhir',
+                'description' => 'Upload scan/foto ijazah SMA/SMK/sederajat',
+            ],
+            'Foto' => [
+                'name' => 'Pas Foto 3x4',
+                'description' => 'Upload pas foto terbaru latar belakang merah/biru',
+            ],
+            'KK' => [
+                'name' => 'Kartu Keluarga',
+                'description' => 'Upload scan/foto Kartu Keluarga',
+            ],
         ];
 
-        return view('student.documents.index', compact('documents', 'registration', 'requiredDocuments'));
+        // Susun data agar sesuai dengan permintaan View (index.blade.php)
+        $document_requirements = [];
+        foreach ($definitions as $type => $info) {
+            $req = new \stdClass();
+            $req->type = $type;
+            $req->name = $info['name'];
+            $req->description = $info['description'];
+            // Pasangkan dengan dokumen yang sudah diupload (jika ada)
+            $req->uploaded_document = $uploadedDocuments[$type] ?? null;
+
+            $document_requirements[] = $req;
+        }
+
+        // Data untuk progress bar
+        $total_documents = count($definitions);
+        $documents_uploaded = $uploadedDocuments->count();
+
+        return view('student.documents.index', compact(
+            'document_requirements',
+            'registration',
+            'total_documents',
+            'documents_uploaded'
+        ));
     }
 
     /**
@@ -96,6 +131,7 @@ class DocumentController extends Controller
     {
         $data = $request->validate([
             'type' => 'required|string|in:KTP,Ijazah,Foto,KK',
+            // Pastikan validasi file menggunakan nama input 'document' sesuai form blade
             'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -106,29 +142,30 @@ class DocumentController extends Controller
                 ->with('error', 'Anda belum melakukan registrasi.');
         }
 
-        // Cek apakah dokumen dengan type ini sudah ada
+        // Cek duplicate
         $existingDoc = Document::where('registration_id', $registration->id)
             ->where('type', $data['type'])
             ->first();
 
         if ($existingDoc) {
-            return back()->with('error', 'Dokumen ' . $data['type'] . ' sudah diupload sebelumnya. Silakan hapus terlebih dahulu jika ingin mengupload ulang.');
+            return back()->with('error', 'Dokumen ' . $data['type'] . ' sudah diupload sebelumnya.');
         }
 
-        $path = $request->file('document')->store('documents', 'public');
+        $file = $request->file('document');
+        $path = $file->store('documents', 'public');
 
         Document::create([
             'registration_id' => $registration->id,
+            'document_name'   => $file->getClientOriginalName(), // <--- INI PERBAIKANNYA (Tambahkan nama file asli)
             'type'            => $data['type'],
             'file_path'       => $path,
             'status'          => 'pending',
         ]);
 
-        // Update status registrasi jika semua dokumen sudah diupload
-        $uploadedDocsCount = $registration->documents()->count() + 1; // +1 karena baru saja ditambahkan
-
-        if ($uploadedDocsCount >= 4 && in_array($registration->status, ['documents_pending', 'pending'])) {
-            $registration->update(['status' => 'documents_verified']);
+        // Cek kelengkapan dokumen
+        $uploadedDocsCount = $registration->documents()->count();
+        if ($uploadedDocsCount >= 4 && $registration->status == 'documents_pending') {
+             // Logic update status jika perlu
         }
 
         return redirect()->route('student.documents.index')
@@ -140,30 +177,26 @@ class DocumentController extends Controller
      */
     public function update(Request $request, Document $document)
     {
-        // Pastikan dokumen ini milik user yang login
         if ($document->registration->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
         $data = $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', // Ganti 'file' jadi 'document' biar konsisten sama form view upload.blade.php jika pakai form yang sama
         ]);
 
-        // Hapus file lama
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
             Storage::disk('public')->delete($document->file_path);
         }
 
-        // Upload file baru
-        $path = $request->file('file')->store('documents', 'public');
+        $path = $request->file('document')->store('documents', 'public');
 
         $document->update([
             'file_path' => $path,
-            'status'    => 'pending',
-            'note'      => null,
+            'status'    => 'pending', // Reset jadi pending agar admin cek ulang
         ]);
 
-        return back()->with('success', 'Dokumen berhasil diupdate!');
+        return redirect()->route('student.documents.index')->with('success', 'Dokumen berhasil diupdate!');
     }
 
     /**
@@ -171,12 +204,10 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
-        // Pastikan dokumen ini milik user yang login
         if ($document->registration->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Hapus file dari storage
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
             Storage::disk('public')->delete($document->file_path);
         }
@@ -189,20 +220,26 @@ class DocumentController extends Controller
     /**
      * Download dokumen
      */
+/**
+     * Download dokumen
+     */
     public function download(Document $document)
     {
-        // Pastikan dokumen ini milik user yang login atau admin/interviewer
         $user = Auth::user();
+        // Pastikan dokumen milik user login ATAU user adalah admin/interviewer
         if ($document->registration->user_id !== $user->id && !in_array($user->role, ['admin', 'interviewer'])) {
             abort(403, 'Unauthorized action.');
         }
 
+        // Cek keberadaan file
         if (!Storage::disk('public')->exists($document->file_path)) {
             return back()->with('error', 'File tidak ditemukan.');
         }
 
+        // Ambil full path dari storage
         $path = Storage::disk('public')->path($document->file_path);
 
+        // Return download response
         return response()->download($path);
     }
 }

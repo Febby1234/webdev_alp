@@ -83,6 +83,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/payments', [StudentPaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/create', [StudentPaymentController::class, 'create'])->name('payments.create');
     Route::post('/payments', [StudentPaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}', [StudentPaymentController::class, 'show'])->name('payments.show');
     Route::get('/payments/{payment}/download', [StudentPaymentController::class, 'download'])->name('payments.download');
 
     // Exams (Schedule & Results)
@@ -92,6 +93,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Exam Card
     Route::get('/exam-card', [StudentDashboardController::class, 'examCard'])->name('exam.card');
     Route::get('/exam-card/download', [StudentDashboardController::class, 'downloadExamCard'])->name('exam.card.download');
+    Route::get('/exams/card', [App\Http\Controllers\Student\ResultController::class, 'printCard'])->name('exams.print_card');
 
     // Profile (Student specific)
     Route::get('/profile', [StudentProfileController::class, 'show'])->name('profile.show');
