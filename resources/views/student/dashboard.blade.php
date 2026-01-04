@@ -136,24 +136,58 @@
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Pembayaran</h3>
                         <div class="space-y-3">
+                            {{-- Baris Nominal --}}
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Biaya Pendaftaran</span>
-                                <span class="text-sm font-semibold text-gray-900">Rp
-                                    {{ number_format($payment_amount ?? 300000, 0, ',', '.') }}</span>
+                                <span class="text-sm font-semibold text-gray-900">
+                                    {{-- INI SUDAH MENGAMBIL DARI CONFIG --}}
+                                    Rp {{ number_format($payment_amount, 0, ',', '.') }}
+                                </span>
                             </div>
+
+                            {{-- Baris Status Badge --}}
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Status</span>
                                 @php
-                                    $s = $payment_status ?? 'pending';
-                                    $badges = ['verified' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'label' => 'Lunas'], 'pending' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'label' => 'Pending'], 'unpaid' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'label' => 'Belum Bayar']];
-                                    $b = $badges[$s] ?? $badges['pending'];
+                                    $s = $payment_status ?? 'unpaid'; // Default unpaid biar aman
+                                    $badges = [
+                                        'verified' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'label' => 'Lunas'],
+                                        'pending'  => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'label' => 'Menunggu Verifikasi'],
+                                        'unpaid'   => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'label' => 'Belum Bayar'],
+                                        'rejected' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'label' => 'Ditolak']
+                                    ];
+                                    $b = $badges[$s] ?? $badges['unpaid'];
                                 @endphp
-                                <span
-                                    class="inline-flex px-2 py-1 rounded text-xs font-medium {{ $b['bg'] }} {{ $b['text'] }}">{{ $b['label'] }}</span>
+                                <span class="inline-flex px-2 py-1 rounded text-xs font-medium {{ $b['bg'] }} {{ $b['text'] }}">
+                                    {{ $b['label'] }}
+                                </span>
                             </div>
-                            <a href="{{ route('student.payments.index') }}"
-                                class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition mt-4">Bayar
-                                Sekarang</a>
+
+                            {{-- LOGIKA TOMBOL DINAMIS --}}
+                            <div class="mt-4">
+                                @if ($s == 'unpaid' || $s == 'rejected')
+                                    {{-- Kalau Belum Bayar / Ditolak: Muncul Tombol Bayar (Biru) --}}
+                                    <a href="{{ route('student.payments.create') }}"
+                                       class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm">
+                                        Bayar Sekarang
+                                    </a>
+
+                                @elseif ($s == 'pending')
+                                    {{-- Kalau Pending: Muncul Tombol Cek Status (Kuning) --}}
+                                    <a href="{{ route('student.payments.index') }}"
+                                       class="block w-full text-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">
+                                        Lihat Status Verifikasi
+                                    </a>
+
+                                @elseif ($s == 'verified')
+                                    {{-- Kalau Lunas: Muncul Tombol Lihat Detail (Hijau/Abu) --}}
+                                    <a href="{{ route('student.payments.index') }}"
+                                       class="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm">
+                                        Lihat Bukti Pembayaran
+                                    </a>
+                                @endif
+                            </div>
+
                         </div>
                     </div>
                 </div>
