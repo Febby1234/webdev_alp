@@ -43,4 +43,4 @@ networks:
     external: true
 
 volumes:
-  tp_db_data:
+  grevi_db_data:
