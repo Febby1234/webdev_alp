@@ -9,7 +9,7 @@
                     </svg>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-900">Lupa Password?</h2>
-                <p class="text-gray-600 mt-2">PPDB {{ date('Y') }}</p>
+                <p class="text-gray-600 mt-2">PMB {{ date('Y') }}</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-xl p-8">

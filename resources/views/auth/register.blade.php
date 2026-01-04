@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                <h1 class="text-4xl font-bold mb-4">Daftar PPDB {{ date('Y') }}</h1>
+                <h1 class="text-4xl font-bold mb-4">Daftar PMB {{ date('Y') }}</h1>
                 <p class="text-xl text-green-100 mb-8">Mulai Perjalanan Pendidikan Anda</p>
 
                 <div class="max-w-md mx-auto">
@@ -71,7 +71,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900">PPDB {{ date('Y') }}</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">PMB {{ date('Y') }}</h2>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-xl p-8">

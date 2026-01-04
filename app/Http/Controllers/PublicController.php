@@ -26,7 +26,11 @@ class PublicController extends Controller
             ->limit(4)
             ->get();
 
-        return view('welcome', compact('stats', 'majors', 'announcements'));
+        return response()
+            ->view('welcome', compact('stats', 'majors', 'announcements'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     public function majors()
