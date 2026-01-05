@@ -11,43 +11,6 @@
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    {{-- Calendar View --}}
-    <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Kalender Kegiatan</h2>
-        <div class="grid grid-cols-7 gap-2 text-center">
-            {{-- Day Headers --}}
-            @foreach(['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
-            <div class="font-semibold text-gray-600 py-2">{{ $day }}</div>
-            @endforeach
-
-            {{-- Calendar Days (simplified) --}}
-            @for($i = 1; $i <= 35; $i++)
-            <div class="aspect-square border border-gray-200 rounded-lg p-2 hover:bg-blue-50 cursor-pointer transition">
-                <div class="text-sm">{{ ($i <= 28) ? $i : '' }}</div>
-                @if($i == 15)
-                <div class="mt-1">
-                    <div class="w-2 h-2 bg-blue-500 rounded-full mx-auto"></div>
-                </div>
-                @endif
-                @if($i == 20)
-                <div class="mt-1">
-                    <div class="w-2 h-2 bg-red-500 rounded-full mx-auto"></div>
-                </div>
-                @endif
-            </div>
-            @endfor
-        </div>
-        <div class="mt-4 flex flex-wrap gap-4 text-sm">
-            <div class="flex items-center">
-                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span>Penutupan Pendaftaran</span>
-            </div>
-            <div class="flex items-center">
-                <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                <span>Ujian Seleksi</span>
-            </div>
-        </div>
-    </div>
 
     {{-- Schedule List --}}
     <div class="grid md:grid-cols-2 gap-8">

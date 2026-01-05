@@ -17,7 +17,7 @@ return [
         'ktp'         => 'KTP / Kartu Identitas',
         'ijazah'      => 'Ijazah / SKL',
         'foto'        => 'Pas Foto',
-        'akta_lahir'  => 'Akta Kelahiran',
+        'KK'          => 'Kartu Keluarga',
     ],
 
     /*

@@ -99,22 +99,36 @@
 
                             {{-- Action Button --}}
                             <div class="ml-4">
-                                @if(!isset($requirement->uploaded_document) || $requirement->uploaded_document->status === 'rejected')
-                                <a href="{{ route('student.documents.upload', ['type' => $requirement->type]) }}"
-                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                    </svg>
-                                    {{ isset($requirement->uploaded_document) ? 'Upload Ulang' : 'Upload' }}
-                                </a>
+                                @php
+                                    $doc = $requirement->uploaded_document ?? null;
+                                    // Kunci tombol hanya jika statusnya sudah 'verified'
+                                    // Artinya: Null, Pending, Rejected = BOLEH UPLOAD
+                                    $isLocked = $doc && $doc->status === 'verified';
+                                @endphp
+
+                                @if(!$isLocked)
+                                    {{-- Tombol Aktif (Upload / Update / Revisi) --}}
+                                    <a href="{{ route('student.documents.upload', ['type' => $requirement->type]) }}"
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">
+
+                                        @if(!$doc)
+                                            Upload {{-- Belum ada file --}}
+                                        @elseif($doc->status === 'rejected')
+                                            Perbaiki {{-- Ditolak admin --}}
+                                        @else
+                                            Ganti File {{-- Status Pending (Update) --}}
+                                        @endif
+
+                                    </a>
                                 @else
-                                <button disabled
-                                        class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-600 text-sm font-semibold rounded-lg cursor-not-allowed">
-                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Terupload
-                                </button>
+                                    {{-- Tombol Mati (Sudah Verified) --}}
+                                    <button disabled
+                                            class="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 text-sm font-semibold rounded-lg cursor-not-allowed border border-green-200">
+                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Terverifikasi
+                                    </button>
                                 @endif
                             </div>
                         </div>

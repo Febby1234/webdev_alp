@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="min-h-screen flex">
         {{-- Left Side - Branding --}}
-        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 to-green-800 p-12 items-center justify-center relative overflow-hidden">
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden">
             {{-- Background Pattern --}}
             <div class="absolute inset-0 opacity-10">
                 <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -25,7 +25,7 @@
                 </div>
 
                 <h1 class="text-4xl font-bold mb-4">Daftar PMB {{ date('Y') }}</h1>
-                <p class="text-xl text-green-100 mb-8">Mulai Perjalanan Pendidikan Anda</p>
+                <p class="text-xl text-blue-100 mb-8">Mulai Perjalanan Pendidikan Anda</p>
 
                 <div class="max-w-md mx-auto">
                     <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
@@ -35,25 +35,25 @@
                                 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                                     <span class="text-sm font-bold">1</span>
                                 </div>
-                                <p class="text-sm text-green-100">Buat akun dengan email aktif</p>
+                                <p class="text-sm text-blue-100">Buat akun dengan email aktif</p>
                             </div>
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                                     <span class="text-sm font-bold">2</span>
                                 </div>
-                                <p class="text-sm text-green-100">Lengkapi formulir pendaftaran</p>
+                                <p class="text-sm text-blue-100">Lengkapi formulir pendaftaran</p>
                             </div>
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                                     <span class="text-sm font-bold">3</span>
                                 </div>
-                                <p class="text-sm text-green-100">Upload dokumen yang diperlukan</p>
+                                <p class="text-sm text-blue-100">Upload dokumen yang diperlukan</p>
                             </div>
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                                     <span class="text-sm font-bold">4</span>
                                 </div>
-                                <p class="text-sm text-green-100">Tunggu konfirmasi dari admin</p>
+                                <p class="text-sm text-blue-100">Tunggu konfirmasi dari admin</p>
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
             <div class="w-full max-w-md">
                 {{-- Mobile Logo --}}
                 <div class="lg:hidden text-center mb-8">
-                    <div class="w-16 h-16 mx-auto bg-green-600 rounded-full flex items-center justify-center mb-3">
+                    <div class="w-16 h-16 mx-auto bg-blue-600 rounded-full flex items-center justify-center mb-3">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
@@ -93,7 +93,7 @@
                                     </svg>
                                 </div>
                                 <x-text-input id="name"
-                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               type="text"
                                               name="name"
                                               :value="old('name')"
@@ -115,7 +115,7 @@
                                     </svg>
                                 </div>
                                 <x-text-input id="email"
-                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               type="email"
                                               name="email"
                                               :value="old('email')"
@@ -137,7 +137,7 @@
                                     </svg>
                                 </div>
                                 <x-text-input id="password"
-                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               type="password"
                                               name="password"
                                               placeholder="Minimal 8 karakter"
@@ -157,7 +157,7 @@
                                     </svg>
                                 </div>
                                 <x-text-input id="password_confirmation"
-                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                              class="block w-full pl-10 pr-3 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               type="password"
                                               name="password_confirmation"
                                               placeholder="Ketik ulang password"
@@ -167,25 +167,10 @@
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 
-                        <!-- Terms Agreement -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <p class="ml-3 text-sm text-blue-800">
-                                    Dengan mendaftar, Anda menyetujui <a href="#" class="font-semibold underline">Syarat & Ketentuan</a> serta <a href="#" class="font-semibold underline">Kebijakan Privasi</a> kami.
-                                </p>
-                            </div>
-                        </div>
-
                         <!-- Register Button -->
                         <div>
                             <button type="submit"
-                                    class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                </svg>
+                                    class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
                                 Daftar Sekarang
                             </button>
                         </div>
@@ -195,20 +180,12 @@
                             <p class="text-sm text-gray-600">
                                 Sudah punya akun?
                                 <a href="{{ route('login') }}"
-                                   class="font-semibold text-green-600 hover:text-green-800 transition">
+                                   class="font-semibold text-blue-600 hover:text-blue-800 transition">
                                     Masuk di sini
                                 </a>
                             </p>
                         </div>
                     </form>
-                </div>
-
-                <!-- Help Text -->
-                <div class="mt-6 text-center">
-                    <p class="text-sm text-gray-500">
-                        Butuh bantuan?
-                        <a href="#" class="text-green-600 hover:text-green-800 font-medium">Hubungi Kami</a>
-                    </p>
                 </div>
             </div>
         </div>

@@ -72,9 +72,6 @@
 
                         <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
                             Filter
                         </button>
 
@@ -120,13 +117,6 @@
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full {{ $user->role == 'admin' ? 'bg-blue-100' : ($user->role == 'interviewer' ? 'bg-purple-100' : 'bg-green-100') }} flex items-center justify-center">
-                                                    <span class="text-sm font-semibold {{ $user->role == 'admin' ? 'text-blue-600' : ($user->role == 'interviewer' ? 'text-purple-600' : 'text-green-600') }}">
-                                                        {{ substr($user->name, 0, 1) }}
-                                                    </span>
-                                                </div>
-                                            </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
                                                     {{ $user->name }}

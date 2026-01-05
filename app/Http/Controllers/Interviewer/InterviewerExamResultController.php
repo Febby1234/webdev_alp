@@ -18,9 +18,17 @@ class InterviewerExamResultController extends Controller
     public function index(Request $request)
     {
         $query = Registration::with(['user', 'major', 'personalDetail', 'examResults', 'schedules'])
-            ->whereIn('status', ['exam_scheduled', 'interview_scheduled', 'finished', 'accepted', 'rejected']);
-
-        // Filter by search
+            ->whereIn('status', [
+                'documents_verified',
+                'verified',          // <--- TAMBAHAN PENTING
+                'payment_verified',  // <--- TAMBAHAN PENTING
+                'exam_scheduled',
+                'interview_scheduled',
+                'finished',
+                'accepted',
+                'rejected'
+            ]);
+        // Filter Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -31,7 +39,7 @@ class InterviewerExamResultController extends Controller
             });
         }
 
-        // Filter by status (pending/completed)
+        // Filter Status (Sudah dinilai / Belum)
         if ($request->filled('status')) {
             if ($request->status == 'pending') {
                 $query->whereDoesntHave('examResults');
@@ -40,7 +48,7 @@ class InterviewerExamResultController extends Controller
             }
         }
 
-        // Filter by major
+        // Filter Jurusan
         if ($request->filled('major_id')) {
             $query->where('major_id', $request->major_id);
         }
@@ -52,82 +60,85 @@ class InterviewerExamResultController extends Controller
     }
 
     /**
-     * Lihat detail peserta & form input nilai (participants.show)
+     * Detail Peserta & Form Input Nilai
      */
     public function show(Registration $registration)
     {
+        // Load relasi yang dibutuhkan
         $registration->load([
-            'user',
-            'major',
-            'batch',
-            'personalDetail',
-            'parents',
-            'schoolOrigin',
-            'documents',
-            'payment',
-            'examResults.interviewer',
-            'schedules'
+            'major', 'batch', 'personalDetail', 'documents', 'examResults', 'schedules'
         ]);
 
-        // Cek apakah interviewer ini sudah memberikan nilai
+        // 1. Cek nilai existing dari interviewer ini
         $examResult = $registration->examResults()
             ->where('interviewer_id', Auth::id())
             ->first();
 
-        // Ambil schedule interview jika ada
-        $schedule = $registration->schedules()->first();
+        // 2. [FIX] Ambil Data Jadwal (Agar tidak error undefined variable)
+        // Kita cari jadwal interview yang nempel di registrasi ini
+        $schedule = $registration->schedules()->where('type', 'interview')->first();
 
-        // Rename untuk view compatibility
+        // Fallback: Jika tidak ada jadwal interview khusus, ambil jadwal apapun yang ada (misal ujian)
+        // atau ambil dari Batch (Broadcast system) jika kamu pakai sistem broadcast untuk interview juga
+        if (!$schedule) {
+            $schedule = \App\Models\Schedule::where('batch_id', $registration->batch_id)
+                        ->where('type', 'interview')
+                        ->first();
+        }
+
+        // Data pendukung
         $participant = $registration;
 
+        // 3. Kirim $schedule ke View
         return view('interviewers.participants.show', compact('participant', 'examResult', 'schedule'));
     }
 
     /**
-     * Simpan/Update nilai (participants.score)
+     * PROSES SIMPAN NILAI (FIXED LOGIC)
      */
     public function score(Request $request, Registration $registration)
     {
+        // 1. Validasi Input (2 Nilai: Tulis & Wawancara)
         $validated = $request->validate([
-            'score'  => 'required|integer|min:0|max:100',
-            'status' => 'required|in:pass,fail,passed,failed',
-            'notes'  => 'nullable|string|max:500',
+            'written_score'   => 'required|numeric|min:0|max:100',
+            'interview_score' => 'required|numeric|min:0|max:100',
+            'status'          => 'required|in:pass,fail',
+            'notes'           => 'nullable|string|max:1000',
         ]);
 
-        // Normalize status
-        $status = in_array($validated['status'], ['pass', 'passed']) ? 'pass' : 'fail';
+        // 2. Hitung Nilai Akhir (Misal: Rata-rata)
+        // Bisa diubah bobotnya, misal: (Tulis * 0.4) + (Wawancara * 0.6)
+        $finalScore = ($validated['written_score'] + $validated['interview_score']) / 2;
 
-        // Cek apakah sudah ada hasil dari interviewer ini
-        $existingResult = ExamResult::where('registration_id', $registration->id)
-            ->where('interviewer_id', Auth::id())
-            ->first();
-
-        if ($existingResult) {
-            // Update existing
-            $existingResult->update([
-                'score'  => $validated['score'],
-                'status' => $status,
-                'notes'  => $validated['notes'],
-            ]);
-            $message = 'Nilai berhasil diperbarui.';
-        } else {
-            // Create new
-            ExamResult::create([
+        // 3. Simpan ke Database (Update or Create)
+        ExamResult::updateOrCreate(
+            [
                 'registration_id' => $registration->id,
-                'schedule_id'     => $registration->schedules()->first()?->id,
-                'interviewer_id'  => Auth::id(),
-                'score'           => $validated['score'],
-                'status'          => $status,
+                'interviewer_id'  => Auth::id(), // Kunci unik biar 1 interviewer 1 nilai
+            ],
+            [
+                'written_score'   => $validated['written_score'],
+                'interview_score' => $validated['interview_score'],
+                'final_score'     => $finalScore,
+                'score'           => $finalScore,
+                'status'          => $validated['status'],
                 'notes'           => $validated['notes'],
-            ]);
-            $message = 'Nilai berhasil disimpan.';
+                // Ambil schedule_id jika ada relasinya
+                'schedule_id'     => $registration->schedules()->first()?->id,
+            ]
+        );
 
-            // Update status registrasi
-            $registration->update(['status' => 'finished']);
-        }
+        // 4. Update Status Registrasi Utama
+        // Jika Lulus -> finished (atau accepted)
+        // Jika Gagal -> rejected
+        // Disini kita set 'finished' dulu agar Admin Pusat yang memvalidasi final statusnya,
+        // atau langsung 'accepted'/'rejected' juga boleh.
+
+        $newStatus = ($validated['status'] == 'pass') ? 'accepted' : 'rejected';
+        $registration->update(['status' => $newStatus]);
 
         return redirect()->route('interviewer.participants.index')
-            ->with('success', $message);
+            ->with('success', 'Nilai berhasil disimpan. Mahasiswa dapat segera melihat hasilnya.');
     }
 
     /**

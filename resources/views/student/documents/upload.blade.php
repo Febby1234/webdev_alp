@@ -36,7 +36,7 @@
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     Format: {{ strtoupper($document_type->format ?? 'PDF') }}
                                 </span>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     Max: {{ $document_type->max_size ?? '2' }}MB
                                 </span>
                             </div>

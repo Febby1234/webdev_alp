@@ -31,17 +31,17 @@
             @endif
 
             {{-- Participant Header --}}
-            <div class="bg-gradient-to-r from-purple-600 to-purple-700 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl font-bold text-purple-600">
+                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
                                 {{ substr($participant->personalDetail->full_name ?? 'U', 0, 1) }}
                             </div>
                             <div class="ml-6">
                                 <h3 class="text-2xl font-bold">{{ $participant->personalDetail->full_name ?? '-' }}</h3>
-                                <p class="text-purple-100 mt-1">{{ $participant->registration_code }}</p>
-                                <p class="text-purple-100 text-sm">{{ $participant->major->name ?? '-' }}</p>
+                                <p class="text-blue-100 mt-1">{{ $participant->registration_code }}</p>
+                                <p class="text-blue-100 text-sm">{{ $participant->major->name ?? '-' }}</p>
                             </div>
                         </div>
                         @if($examResult)
@@ -123,43 +123,69 @@
                                 @csrf
 
                                 <div class="space-y-6">
-                                    {{-- Score --}}
-                                    <div>
-                                        <x-input-label for="score" :value="__('Nilai (0-100)')" />
-                                        <x-text-input id="score" class="block mt-1 w-full text-2xl font-bold"
-                                            type="number" name="score"
-                                            :value="old('score', $examResult->score ?? '')"
-                                            min="0" max="100" required
-                                            placeholder="Masukkan nilai" />
-                                        <x-input-error :messages="$errors->get('score')" class="mt-2" />
+
+                                    {{-- GRID UNTUK 2 NILAI --}}
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                                        {{-- Written Score --}}
+                                        <div>
+                                            <x-input-label for="written_score" :value="__('Nilai Tertulis (0-100)')" />
+                                            <x-text-input id="written_score" class="block mt-1 w-full font-bold"
+                                                type="number" name="written_score"
+                                                :value="old('written_score', $examResult->written_score ?? '')"
+                                                min="0" max="100" required
+                                                placeholder="Contoh: 80" />
+                                            <x-input-error :messages="$errors->get('written_score')" class="mt-2" />
+                                        </div>
+
+                                        {{-- Interview Score --}}
+                                        <div>
+                                            <x-input-label for="interview_score" :value="__('Nilai Wawancara (0-100)')" />
+                                            <x-text-input id="interview_score" class="block mt-1 w-full font-bold"
+                                                type="number" name="interview_score"
+                                                :value="old('interview_score', $examResult->interview_score ?? '')"
+                                                min="0" max="100" required
+                                                placeholder="Contoh: 90" />
+                                            <x-input-error :messages="$errors->get('interview_score')" class="mt-2" />
+                                        </div>
                                     </div>
+
+                                    {{-- INFO NILAI AKHIR (Optional, hanya teks visual) --}}
+                                    @if($examResult)
+                                    <div class="bg-gray-50 p-3 rounded text-center border border-gray-200">
+                                        <span class="text-sm text-gray-500">Nilai Akhir Saat Ini:</span>
+                                        <span class="text-lg font-bold text-blue-700">{{ $examResult->final_score }}</span>
+                                    </div>
+                                    @endif
 
                                     {{-- Notes --}}
                                     <div>
                                         <x-input-label for="notes" :value="__('Catatan Interview')" />
                                         <textarea id="notes" name="notes" rows="6"
-                                            class="block mt-1 w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm"
+                                            class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                             placeholder="Catatan hasil interview, kesan, saran, dll...">{{ old('notes', $examResult->notes ?? '') }}</textarea>
                                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                                     </div>
 
                                     {{-- Status --}}
                                     <div>
-                                        <x-input-label for="status" :value="__('Status')" />
-                                        <select id="status" name="status" class="block mt-1 w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
+                                        <x-input-label for="status" :value="__('Keputusan')" />
+                                        <select id="status" name="status" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
+                                            <option value="">-- Pilih Keputusan --</option>
                                             <option value="pass" {{ old('status', $examResult->status ?? '') == 'pass' ? 'selected' : '' }}>
-                                                Lulus
+                                                LULUS / DITERIMA
                                             </option>
                                             <option value="fail" {{ old('status', $examResult->status ?? '') == 'fail' ? 'selected' : '' }}>
-                                                Tidak Lulus
+                                                TIDAK LULUS
                                             </option>
                                         </select>
+                                        <x-input-error :messages="$errors->get('status')" class="mt-2" />
                                     </div>
 
                                     {{-- Submit Button --}}
                                     <div class="flex gap-3">
-                                        <button type="submit" class="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
-                                            {{ $examResult ? '✓ Update Nilai' : '✓ Simpan Nilai' }}
+                                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition w-full md:w-auto">
+                                            {{ $examResult ? 'Update Hasil Penilaian' : 'Simpan Hasil Penilaian' }}
                                         </button>
                                     </div>
                                 </div>
@@ -217,9 +243,9 @@
                     </div>
 
                     {{-- Quick Notes --}}
-                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                        <h4 class="font-semibold text-purple-900 mb-2 text-sm">Tips Penilaian:</h4>
-                        <ul class="text-xs text-purple-800 space-y-1 list-disc list-inside">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-900 mb-2 text-sm">Tips Penilaian:</h4>
+                        <ul class="text-xs text-blue-800 space-y-1 list-disc list-inside">
                             <li>Nilai 0-100</li>
                             <li>Perhatikan sikap & komunikasi</li>
                             <li>Catat poin penting di catatan</li>

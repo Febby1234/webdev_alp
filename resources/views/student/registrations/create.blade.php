@@ -12,36 +12,52 @@
                     {{-- Step Indicator --}}
                     <div class="mb-8">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700">Step {{ $current_step ?? 1 }} of 4</span>
-                            <span class="text-sm text-gray-500">{{ $step_title ?? 'Biodata Pribadi' }}</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ (($current_step ?? 1) / 4) * 100 }}%"></div>
-                        </div>
-                    </div>
+                            {{-- ID 'step-number' digunakan oleh JS untuk ganti angka --}}
+                            <span id="step-number"
+                                class="text-sm font-medium text-gray-700">Step 1 of 4</span>
 
-                    <form method="POST" action="{{ route('student.registration.store') }}" enctype="multipart/form-data">
+                            {{-- ID 'step-title' digunakan oleh JS untuk ganti judul --}}
+                            <span id="step-title" class="text-sm text-gray-500">Biodata
+                                Pribadi</span>
+                            </div>
+
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            {{-- ID 'progress-bar' digunakan oleh JS untuk animasi loading --}}
+                            <div id="progress-bar"
+                                class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 25%">
+                            </div>
+                            </div>
+                        </div>
+
+                    <form method="POST" action="{{ route('student.registration.store') }}"
+                        enctype="multipart/form-data">
                         @csrf
 
                         {{-- Step 1: Biodata Pribadi --}}
-                        <div id="step-1" class="step-content" style="display: {{ ($current_step ?? 1) == 1 ? 'block' : 'none' }}">
+                        <div id="step-1" class="step-content"
+                            style="display: {{ ($current_step ?? 1) == 1 ? 'block' : 'none' }}">
                             <h3 class="text-lg font-semibold mb-6 text-gray-900">Biodata Pribadi</h3>
 
                             <div class="space-y-4">
                                 {{-- Nama Lengkap --}}
                                 <div>
                                     <x-input-label for="fullname" :value="__('Nama Lengkap')" />
-                                    <x-text-input id="fullname" class="block mt-1 w-full" type="text" name="fullname" :value="old('fullname')" required />
+                                    <x-text-input id="fullname" class="block mt-1 w-full" type="text"
+                                        name="fullname" :value="old('fullname')" required />
                                     <x-input-error :messages="$errors->get('fullname')" class="mt-2" />
                                 </div>
 
                                 {{-- Jenis Kelamin --}}
                                 <div>
                                     <x-input-label for="gender" :value="__('Jenis Kelamin')" />
-                                    <select id="gender" name="gender" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
+                                    <select id="gender" name="gender"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                        required>
                                         <option value="">Pilih Jenis Kelamin</option>
-                                        <option value="L" {{ old('gender') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="P" {{ old('gender') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                        <option value="L" {{ old('gender') == 'L' ? 'selected' : '' }}>Laki-laki
+                                        </option>
+                                        <option value="P" {{ old('gender') == 'P' ? 'selected' : '' }}>Perempuan
+                                        </option>
                                     </select>
                                     <x-input-error :messages="$errors->get('gender')" class="mt-2" />
                                 </div>
@@ -49,35 +65,40 @@
                                 {{-- Tempat Lahir --}}
                                 <div>
                                     <x-input-label for="place_of_birth" :value="__('Tempat Lahir')" />
-                                    <x-text-input id="place_of_birth" class="block mt-1 w-full" type="text" name="place_of_birth" :value="old('place_of_birth')" required />
+                                    <x-text-input id="place_of_birth" class="block mt-1 w-full" type="text"
+                                        name="place_of_birth" :value="old('place_of_birth')" required />
                                     <x-input-error :messages="$errors->get('place_of_birth')" class="mt-2" />
                                 </div>
 
                                 {{-- Tanggal Lahir --}}
                                 <div>
                                     <x-input-label for="date_of_birth" :value="__('Tanggal Lahir')" />
-                                    <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth" :value="old('date_of_birth')" required />
+                                    <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date"
+                                        name="date_of_birth" :value="old('date_of_birth')" required />
                                     <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                                 </div>
 
                                 {{-- Alamat --}}
                                 <div>
                                     <x-input-label for="address" :value="__('Alamat Lengkap')" />
-                                    <textarea id="address" name="address" rows="3" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>{{ old('address') }}</textarea>
+                                    <textarea id="address" name="address" rows="3"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>{{ old('address') }}</textarea>
                                     <x-input-error :messages="$errors->get('address')" class="mt-2" />
                                 </div>
 
                                 {{-- No. Telepon --}}
                                 <div>
                                     <x-input-label for="phone" :value="__('No. Telepon')" />
-                                    <x-text-input id="phone" class="block mt-1 w-full" type="tel" name="phone" :value="old('phone')" required />
+                                    <x-text-input id="phone" class="block mt-1 w-full" type="tel" name="phone"
+                                        :value="old('phone')" required />
                                     <x-input-error :messages="$errors->get('phone')" class="mt-2" />
                                 </div>
                             </div>
                         </div>
 
                         {{-- Step 2: Data Orang Tua --}}
-                        <div id="step-2" class="step-content" style="display: {{ ($current_step ?? 1) == 2 ? 'block' : 'none' }}">
+                        <div id="step-2" class="step-content"
+                            style="display: {{ ($current_step ?? 1) == 2 ? 'block' : 'none' }}">
                             <h3 class="text-lg font-semibold mb-6 text-gray-900">Data Orang Tua</h3>
 
                             <div class="space-y-6">
@@ -87,19 +108,22 @@
                                     <div class="space-y-4">
                                         <div>
                                             <x-input-label for="father_name" :value="__('Nama Ayah')" />
-                                            <x-text-input id="father_name" class="block mt-1 w-full" type="text" name="father_name" :value="old('father_name')" required />
+                                            <x-text-input id="father_name" class="block mt-1 w-full" type="text"
+                                                name="father_name" :value="old('father_name')" required />
                                             <x-input-error :messages="$errors->get('father_name')" class="mt-2" />
                                         </div>
 
                                         <div>
                                             <x-input-label for="father_job" :value="__('Pekerjaan Ayah')" />
-                                            <x-text-input id="father_job" class="block mt-1 w-full" type="text" name="father_job" :value="old('father_job')" />
+                                            <x-text-input id="father_job" class="block mt-1 w-full" type="text"
+                                                name="father_job" :value="old('father_job')" />
                                             <x-input-error :messages="$errors->get('father_job')" class="mt-2" />
                                         </div>
 
                                         <div>
                                             <x-input-label for="father_phone" :value="__('No. Telepon Ayah')" />
-                                            <x-text-input id="father_phone" class="block mt-1 w-full" type="tel" name="father_phone" :value="old('father_phone')" />
+                                            <x-text-input id="father_phone" class="block mt-1 w-full" type="tel"
+                                                name="father_phone" :value="old('father_phone')" />
                                             <x-input-error :messages="$errors->get('father_phone')" class="mt-2" />
                                         </div>
                                     </div>
@@ -111,19 +135,22 @@
                                     <div class="space-y-4">
                                         <div>
                                             <x-input-label for="mother_name" :value="__('Nama Ibu')" />
-                                            <x-text-input id="mother_name" class="block mt-1 w-full" type="text" name="mother_name" :value="old('mother_name')" required />
+                                            <x-text-input id="mother_name" class="block mt-1 w-full" type="text"
+                                                name="mother_name" :value="old('mother_name')" required />
                                             <x-input-error :messages="$errors->get('mother_name')" class="mt-2" />
                                         </div>
 
                                         <div>
                                             <x-input-label for="mother_job" :value="__('Pekerjaan Ibu')" />
-                                            <x-text-input id="mother_job" class="block mt-1 w-full" type="text" name="mother_job" :value="old('mother_job')" />
+                                            <x-text-input id="mother_job" class="block mt-1 w-full" type="text"
+                                                name="mother_job" :value="old('mother_job')" />
                                             <x-input-error :messages="$errors->get('mother_job')" class="mt-2" />
                                         </div>
 
                                         <div>
                                             <x-input-label for="mother_phone" :value="__('No. Telepon Ibu')" />
-                                            <x-text-input id="mother_phone" class="block mt-1 w-full" type="tel" name="mother_phone" :value="old('mother_phone')" />
+                                            <x-text-input id="mother_phone" class="block mt-1 w-full" type="tel"
+                                                name="mother_phone" :value="old('mother_phone')" />
                                             <x-input-error :messages="$errors->get('mother_phone')" class="mt-2" />
                                         </div>
                                     </div>
@@ -132,36 +159,45 @@
                         </div>
 
                         {{-- Step 3: Asal Sekolah --}}
-                        <div id="step-3" class="step-content" style="display: {{ ($current_step ?? 1) == 3 ? 'block' : 'none' }}">
+                        <div id="step-3" class="step-content"
+                            style="display: {{ ($current_step ?? 1) == 3 ? 'block' : 'none' }}">
                             <h3 class="text-lg font-semibold mb-6 text-gray-900">Asal Sekolah</h3>
 
                             <div class="space-y-4">
                                 <div>
                                     <x-input-label for="school_name" :value="__('Nama Sekolah')" />
-                                    <x-text-input id="school_name" class="block mt-1 w-full" type="text" name="school_name" :value="old('school_name')" required />
+                                    <x-text-input id="school_name" class="block mt-1 w-full" type="text"
+                                        name="school_name" :value="old('school_name')" required />
                                     <x-input-error :messages="$errors->get('school_name')" class="mt-2" />
                                 </div>
 
                                 <div>
                                     <x-input-label for="graduation_year" :value="__('Tahun Lulus')" />
-                                    <x-text-input id="graduation_year" class="block mt-1 w-full" type="number" name="graduation_year" :value="old('graduation_year')" required min="2000" max="2030" />
+                                    <x-text-input id="graduation_year" class="block mt-1 w-full" type="number"
+                                        name="graduation_year" :value="old('graduation_year')" required min="2000"
+                                        max="2030" />
                                     <x-input-error :messages="$errors->get('graduation_year')" class="mt-2" />
                                 </div>
 
                                 <div>
                                     <x-input-label for="average_grade" :value="__('Rata-rata Nilai Rapor')" />
-                                    <x-text-input id="average_grade" class="block mt-1 w-full" type="number" name="average_grade" :value="old('average_grade')" step="0.01" min="0" max="100" />
+                                    <x-text-input id="average_grade" class="block mt-1 w-full" type="number"
+                                        name="average_grade" :value="old('average_grade')" step="0.01" min="0"
+                                        max="100" />
                                     <x-input-error :messages="$errors->get('average_grade')" class="mt-2" />
                                 </div>
 
                                 <div>
                                     <x-input-label for="major_id" :value="__('Jurusan yang Dipilih')" />
-                                    <select id="major_id" name="major_id" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
+                                    <select id="major_id" name="major_id"
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                        required>
                                         <option value="">Pilih Jurusan</option>
-                                        @foreach($majors ?? [] as $major)
-                                        <option value="{{ $major->id }}" {{ old('major_id') == $major->id ? 'selected' : '' }}>
-                                            {{ $major->name }} (Kuota: {{ $major->quota }})
-                                        </option>
+                                        @foreach ($majors ?? [] as $major)
+                                            <option value="{{ $major->id }}"
+                                                {{ old('major_id') == $major->id ? 'selected' : '' }}>
+                                                {{ $major->name }} (Kuota: {{ $major->quota }})
+                                            </option>
                                         @endforeach
                                     </select>
                                     <x-input-error :messages="$errors->get('major_id')" class="mt-2" />
@@ -170,7 +206,8 @@
                         </div>
 
                         {{-- Step 4: Preview --}}
-                        <div id="step-4" class="step-content" style="display: {{ ($current_step ?? 1) == 4 ? 'block' : 'none' }}">
+                        <div id="step-4" class="step-content"
+                            style="display: {{ ($current_step ?? 1) == 4 ? 'block' : 'none' }}">
                             <h3 class="text-lg font-semibold mb-6 text-gray-900">Preview Data</h3>
 
                             <div class="bg-gray-50 rounded-lg p-6 space-y-4">
@@ -239,15 +276,20 @@
 
                         {{-- Navigation Buttons --}}
                         <div class="flex justify-between mt-8">
-                            <button type="button" id="btn-prev" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition" style="display: none;">
-                                ← Sebelumnya
+                            <button type="button" id="btn-prev"
+                                class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+                                style="display: none;">
+                                Sebelumnya
                             </button>
 
                             <div class="ml-auto flex gap-3">
-                                <button type="button" id="btn-next" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                <button type="button" id="btn-next"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                     Selanjutnya
                                 </button>
-                                <button type="submit" id="btn-submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" style="display: none;">
+                                <button type="submit" id="btn-submit"
+                                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                                    style="display: none;">
                                     Submit Pendaftaran
                                 </button>
                             </div>
@@ -259,105 +301,104 @@
     </div>
 
     @push('scripts')
-    <script>
-        let currentStep = 1;
-        const totalSteps = 4;
+        <script>
+            let currentStep = 1;
+            const totalSteps = 4;
+            const titles = ['Biodata Pribadi', 'Data Orang Tua', 'Asal Sekolah', 'Preview Data'];
 
-        function showStep(step) {
-            // Sembunyikan semua step
-            document.querySelectorAll('.step-content').forEach(el => {
-                el.style.display = 'none';
-            });
+            function showStep(step) {
+                // 1. Sembunyikan semua step
+                document.querySelectorAll('.step-content').forEach(el => {
+                    el.style.display = 'none';
+                });
 
-            // Tampilkan step saat ini
-            document.getElementById(`step-${step}`).style.display = 'block';
+                // 2. Tampilkan step saat ini
+                document.getElementById(`step-${step}`).style.display = 'block';
 
-            // Atur visibilitas tombol
-            document.getElementById('btn-prev').style.display = step > 1 ? 'block' : 'none';
-            document.getElementById('btn-next').style.display = step < totalSteps ? 'block' : 'none';
-            document.getElementById('btn-submit').style.display = step === totalSteps ? 'block' : 'none';
+                // 3. Atur tombol
+                document.getElementById('btn-prev').style.display = step > 1 ? 'block' : 'none';
+                document.getElementById('btn-next').style.display = step < totalSteps ? 'block' : 'none';
+                document.getElementById('btn-submit').style.display = step === totalSteps ? 'block' : 'none';
 
-            // Update indikator progress bar (opsional, biar cantik)
-            const progressBar = document.querySelector('.bg-blue-600.h-2');
-            if(progressBar) {
-                progressBar.style.width = `${(step / totalSteps) * 100}%`;
+                // --- UPDATE INDIKATOR (INI YANG KAMU CARI) ---
+
+                // Update Angka "Step X of 4"
+                const stepNumberEl = document.getElementById('step-number');
+                if (stepNumberEl) {
+                    stepNumberEl.textContent = `Step ${step} of ${totalSteps}`;
+                }
+
+                // Update Judul Step (Kanan)
+                const stepTitleEl = document.getElementById('step-title');
+                if (stepTitleEl) {
+                    stepTitleEl.textContent = titles[step - 1];
+                }
+
+                // Update Progress Bar (Biru-biru)
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = `${(step / totalSteps) * 100}%`;
+                }
+
+                // Update preview jika masuk step 4
+                if (step === 4) {
+                    updatePreview();
+                }
             }
 
-            // Update teks step
-            const stepTitle = document.querySelector('.text-sm.text-gray-500');
-            if(stepTitle) {
-                const titles = ['Biodata Pribadi', 'Data Orang Tua', 'Asal Sekolah', 'Preview Data'];
-                stepTitle.textContent = titles[step - 1];
+            // ... (Sisa fungsi updatePreview dan Event Listener biarkan sama) ...
+
+            // Helper Update Preview (Sama seperti kodemu)
+            function updatePreview() {
+                const getVal = (id) => document.getElementById(id).value || '-';
+                const getSelText = (id) => {
+                    const el = document.getElementById(id);
+                    return el.options[el.selectedIndex]?.text || '-';
+                };
+
+                document.getElementById('preview-fullname').textContent = getVal('fullname');
+                document.getElementById('preview-gender').textContent = getVal('gender') === 'L' ? 'Laki-laki' : 'Perempuan';
+                document.getElementById('preview-birth').textContent =
+                `${getVal('place_of_birth')}, ${getVal('date_of_birth')}`;
+                document.getElementById('preview-phone').textContent = getVal('phone');
+                document.getElementById('preview-father').textContent = getVal('father_name');
+                document.getElementById('preview-mother').textContent = getVal('mother_name');
+                document.getElementById('preview-school').textContent = getVal('school_name');
+                document.getElementById('preview-year').textContent = getVal('graduation_year');
+                document.getElementById('preview-major').textContent = getSelText('major_id');
             }
 
-            // Update preview jika masuk step 4
-            if (step === 4) {
-                updatePreview();
-            }
-        }
-
-        function updatePreview() {
-            // Helper untuk ambil teks dari select option
-            const getSelectedText = (id) => {
-                const el = document.getElementById(id);
-                return el.options[el.selectedIndex]?.text || '-';
-            };
-
-            document.getElementById('preview-fullname').textContent = document.getElementById('fullname').value || '-';
-            document.getElementById('preview-gender').textContent = document.getElementById('gender').value === 'L' ? 'Laki-laki' : 'Perempuan';
-            document.getElementById('preview-birth').textContent = `${document.getElementById('place_of_birth').value}, ${document.getElementById('date_of_birth').value}`;
-            document.getElementById('preview-phone').textContent = document.getElementById('phone').value || '-';
-
-            document.getElementById('preview-father').textContent = document.getElementById('father_name').value || '-';
-            document.getElementById('preview-mother').textContent = document.getElementById('mother_name').value || '-';
-
-            document.getElementById('preview-school').textContent = document.getElementById('school_name').value || '-';
-            document.getElementById('preview-year').textContent = document.getElementById('graduation_year').value || '-';
-
-            // Ambil teks jurusan, buang info kuota dalam kurung biar rapi
-            let majorText = getSelectedText('major_id');
-            document.getElementById('preview-major').textContent = majorText;
-        }
-
-        // --- VALIDASI SEBELUM NEXT ---
-        document.getElementById('btn-next').addEventListener('click', () => {
-            if (currentStep < totalSteps) {
-                // Ambil container step saat ini
+            // --- Event Listeners (Validasi) Tetap Sama ---
+            document.getElementById('btn-next').addEventListener('click', () => {
                 const currentStepDiv = document.getElementById(`step-${currentStep}`);
-
-                // Cari semua input/select/textarea di step ini
                 const inputs = currentStepDiv.querySelectorAll('input, select, textarea');
                 let isValid = true;
 
-                // Cek validitas satu per satu
                 for (const input of inputs) {
                     if (!input.checkValidity()) {
-                        input.reportValidity(); // Tampilkan bubble error browser
+                        input.reportValidity();
                         isValid = false;
-                        break; // Stop di error pertama
+                        break;
                     }
                 }
 
-                // Jika valid, baru boleh lanjut
-                if (isValid) {
+                if (isValid && currentStep < totalSteps) {
                     currentStep++;
                     showStep(currentStep);
-                    // Scroll ke atas biar user sadar ganti halaman
                     window.scrollTo(0, 0);
                 }
-            }
-        });
+            });
 
-        document.getElementById('btn-prev').addEventListener('click', () => {
-            if (currentStep > 1) {
-                currentStep--;
-                showStep(currentStep);
-                window.scrollTo(0, 0);
-            }
-        });
+            document.getElementById('btn-prev').addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                    window.scrollTo(0, 0);
+                }
+            });
 
-        // Initialize
-        showStep(currentStep);
-    </script>
+            // Initialize
+            showStep(currentStep);
+        </script>
     @endpush
 </x-main-layout>

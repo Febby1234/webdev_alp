@@ -62,9 +62,6 @@
 
                         <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
                             Filter
                         </button>
 
@@ -114,18 +111,14 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($payments ?? [] as $index => $payment)
                                 <tr class="hover:bg-gray-50 transition">
+                                    {{-- 1. NO --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ ($payments->currentPage() - 1) * $payments->perPage() + $index + 1 }}
                                     </td>
+
+                                    {{-- 2. PENDAFTAR --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                    <span class="text-blue-600 font-semibold text-sm">
-                                                        {{ substr($payment->registration->personalDetail->full_name ?? $payment->registration->user->name ?? 'U', 0, 1) }}
-                                                    </span>
-                                                </div>
-                                            </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
                                                     {{ $payment->registration->personalDetail->full_name ?? $payment->registration->user->name ?? '-' }}
@@ -136,6 +129,8 @@
                                             </div>
                                         </div>
                                     </td>
+
+                                    {{-- 3. NOMINAL --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-semibold text-gray-900">
                                             Rp {{ number_format($payment->amount, 0, ',', '.') }}
@@ -144,14 +139,30 @@
                                             Batch: {{ $payment->registration->batch->name ?? '-' }}
                                         </div>
                                     </td>
+
+                                    {{-- 4. INFO TRANSFER (BANK) --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-xs text-gray-500">
-                                            {{ $payment->created_at->format('H:i') }}
+                                        <div class="text-sm text-gray-900">
+                                            {{ $payment->note ?? '-' }} {{-- Menampilkan Nama Bank --}}
                                         </div>
                                     </td>
+
+                                    {{-- 5. TANGGAL (INI YANG TADI HILANG) --}}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">
+                                            {{ $payment->created_at->format('d M Y') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Pukul {{ $payment->created_at->format('H:i') }}
+                                        </div>
+                                    </td>
+
+                                    {{-- 6. STATUS --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <x-status-badge :status="$payment->status" />
                                     </td>
+
+                                    {{-- 7. AKSI --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('admin.payments.show', $payment->id) }}"
                                            class="inline-flex items-center text-blue-600 hover:text-blue-900 transition">
@@ -165,17 +176,8 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center">
-                                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        <p class="text-gray-500 text-lg">
-                                            @if(request()->hasAny(['status', 'search']))
-                                                Tidak ada pembayaran sesuai filter. <a href="{{ route('admin.payments.index') }}" class="text-blue-600 hover:underline">Reset pencarian</a>
-                                            @else
-                                                Belum ada data pembayaran
-                                            @endif
-                                        </p>
+                                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                        Belum ada data pembayaran
                                     </td>
                                 </tr>
                                 @endforelse

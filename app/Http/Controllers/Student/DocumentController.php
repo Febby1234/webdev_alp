@@ -131,7 +131,6 @@ class DocumentController extends Controller
     {
         $data = $request->validate([
             'type' => 'required|string|in:KTP,Ijazah,Foto,KK',
-            // Pastikan validasi file menggunakan nama input 'document' sesuai form blade
             'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -142,31 +141,44 @@ class DocumentController extends Controller
                 ->with('error', 'Anda belum melakukan registrasi.');
         }
 
-        // Cek duplicate
+        // Cek apakah dokumen tipe ini sudah ada sebelumnya
         $existingDoc = Document::where('registration_id', $registration->id)
             ->where('type', $data['type'])
             ->first();
 
-        if ($existingDoc) {
-            return back()->with('error', 'Dokumen ' . $data['type'] . ' sudah diupload sebelumnya.');
+        // Jika ada dokumen lama, hapus file fisiknya biar storage gak penuh
+        if ($existingDoc && Storage::disk('public')->exists($existingDoc->file_path)) {
+            Storage::disk('public')->delete($existingDoc->file_path);
         }
 
+        // Upload file baru
         $file = $request->file('document');
         $path = $file->store('documents', 'public');
 
-        Document::create([
-            'registration_id' => $registration->id,
-            'document_name'   => $file->getClientOriginalName(), // <--- INI PERBAIKANNYA (Tambahkan nama file asli)
-            'type'            => $data['type'],
-            'file_path'       => $path,
-            'status'          => 'pending',
-        ]);
+        // Update atau Create data di database
+        // Jika sudah ada (update), status reset jadi pending & rejection_reason dihapus
+        // Jika belum ada (create), buat baru status pending
+        Document::updateOrCreate(
+            [
+                'registration_id' => $registration->id,
+                'type' => $data['type']
+            ],
+            [
+                'document_name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'status' => 'pending', // Reset status jadi pending setiap kali upload baru
+                'rejection_reason' => null // Hapus alasan penolakan lama
+            ]
+        );
 
-        // Cek kelengkapan dokumen
+        // Cek kelengkapan dokumen (Opsional: Update status registrasi jika semua lengkap)
+        // Logika ini bisa disesuaikan dengan kebutuhan bisnis
+        /*
         $uploadedDocsCount = $registration->documents()->count();
         if ($uploadedDocsCount >= 4 && $registration->status == 'documents_pending') {
-             // Logic update status jika perlu
+             // $registration->update(['status' => 'documents_uploaded']);
         }
+        */
 
         return redirect()->route('student.documents.index')
             ->with('success', 'Dokumen berhasil diupload!');

@@ -10,9 +10,6 @@
             {{-- Back Button --}}
             <div class="mb-6">
                 <a href="{{ route('student.dashboard') }}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
                     Kembali ke Dashboard
                 </a>
             </div>
@@ -201,7 +198,7 @@
                 <a href="{{ route('student.payments.index') }}"
                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition p-6">
                     <div class="flex items-center">
-                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                         <div class="ml-4">
@@ -214,7 +211,7 @@
                 <a href="{{ route('student.exams.schedule') }}"
                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition p-6">
                     <div class="flex items-center">
-                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                         <div class="ml-4">

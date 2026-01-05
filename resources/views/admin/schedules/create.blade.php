@@ -25,21 +25,26 @@
                         <div class="space-y-6">
                             {{-- Batch --}}
                             <div>
+                                {{-- Hapus tulisan (Opsional) --}}
                                 <x-input-label for="batch_id" :value="__('Gelombang')" />
+
+                                {{-- Tambahkan 'required' di tag select --}}
                                 <select id="batch_id"
                                         name="batch_id"
-                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
-                                    <option value="">Pilih Gelombang (Opsional)</option>
+                                        class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                        required>
+
+                                    <option value="">-- Pilih Gelombang --</option>
+
                                     @foreach($batches as $batch)
-                                    <option value="{{ $batch->id }}" {{ old('batch_id', $schedule->batch_id ?? '') == $batch->id ? 'selected' : '' }}>
+                                    <option value="{{ $batch->id }}" {{ old('batch_id') == $batch->id ? 'selected' : '' }}>
                                         {{ $batch->batch_name }}
                                     </option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('batch_id')" class="mt-2" />
-                                <p class="text-sm text-gray-500 mt-1">Jadwal akan berlaku untuk gelombang yang dipilih</p>
                             </div>
-                            
+
                             {{-- Exam Type --}}
                             <div>
                                 <x-input-label for="type" :value="__('Jenis Ujian')" />
@@ -48,10 +53,16 @@
                                         class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                         required>
                                     <option value="">Pilih Jenis Ujian</option>
-                                    <option value="Ujian Tertulis" {{ old('type') == 'Ujian Tertulis' ? 'selected' : '' }}>Ujian Tertulis</option>
-                                    <option value="Ujian Wawancara" {{ old('type') == 'Ujian Wawancara' ? 'selected' : '' }}>Ujian Wawancara</option>
-                                    <option value="Tes Psikologi" {{ old('type') == 'Tes Psikologi' ? 'selected' : '' }}>Tes Psikologi</option>
-                                    <option value="Tes Kesehatan" {{ old('type') == 'Tes Kesehatan' ? 'selected' : '' }}>Tes Kesehatan</option>
+
+                                    {{-- PERBAIKAN DISINI: Ganti value menjadi bahasa inggris (sesuai database) --}}
+
+                                    <option value="exam" {{ old('type') == 'exam' ? 'selected' : '' }}>
+                                        Ujian Tertulis
+                                    </option>
+
+                                    <option value="interview" {{ old('type') == 'interview' ? 'selected' : '' }}>
+                                        Ujian Wawancara
+                                    </option>
                                 </select>
                                 <x-input-error :messages="$errors->get('type')" class="mt-2" />
                             </div>

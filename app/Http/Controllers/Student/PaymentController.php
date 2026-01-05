@@ -65,50 +65,45 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $data = $request->validate([
             'amount' => 'required|numeric',
             'proof'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'bank_account' => 'nullable|string|max:255', // Validasi tetap ada
+            'bank_account' => 'nullable|string|max:255',
         ]);
 
         $registration = Registration::where('user_id', Auth::id())->first();
 
-        if (!$registration) {
-            return redirect()->route('student.registration.create')->with('error', 'Belum registrasi');
+        // Cek apakah user ini punya data pembayaran sebelumnya?
+        $existingPayment = Payment::where('registration_id', $registration->id)->first();
+
+        // LOGIC REPLACE FILE LAMA
+        // Jika ada pembayaran lama DAN ada filenya, kita hapus dulu file fisiknya
+        if ($existingPayment && $existingPayment->proof_image) {
+            if (Storage::disk('public')->exists($existingPayment->proof_image)) {
+                Storage::disk('public')->delete($existingPayment->proof_image);
+            }
         }
 
-        // Cek duplicate (biar aman)
-        $existingPayment = Payment::where('registration_id', $registration->id)
-            ->whereIn('status', ['pending', 'verified'])
-            ->first();
-
-        if ($existingPayment) {
-            return back()->with('error', 'Anda sedang dalam proses verifikasi.');
-        }
-
-        // 2. Simpan File
+        // Upload file baru
         $path = $request->file('proof')->store('payments', 'public');
 
-        // 3. Simpan ke Database (INI BAGIAN PENTINGNYA)
-        Payment::create([
-            'registration_id' => $registration->id,
-            'amount'          => $data['amount'],
-            'proof_image'     => $path,
+        // Simpan ke Database (Pakai updateOrCreate biar praktis)
+        Payment::updateOrCreate(
+            ['registration_id' => $registration->id], // Cari berdasarkan ID registrasi
+            [
+                'amount'      => $data['amount'],
+                'proof_image' => $path,           // Update path gambar baru
+                'note'        => $request->bank_account,
+                'status'      => 'pending',       // Reset status jadi pending agar admin cek ulang
+                'rejection_reason' => null        // Hapus alasan penolakan (kalau ada)
+            ]
+        );
 
-            // PERUBAHAN DISINI:
-            // Kita simpan input 'bank_account' ke dalam kolom 'note'
-            // Karena di database kamu tidak ada kolom 'bank_account'
-            'note'            => $request->bank_account,
-
-            'status'          => 'pending',
-        ]);
-
-        // 4. Update Status Registrasi
-        $registration->update(['status' => 'payment_pending']);
+        // Update status di tabel registrasi juga
+        $registration->update(['status' => 'payment_pending']); // Atau 'paid' sesuai sistem kamu
 
         return redirect()->route('student.payments.index')
-            ->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi admin.');
+            ->with('success', 'Bukti pembayaran berhasil diupload/diupdate!');
     }
 
     /**

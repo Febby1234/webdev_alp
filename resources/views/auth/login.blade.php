@@ -163,14 +163,6 @@
                         @endif
                     </form>
                 </div>
-
-                <!-- Help Text -->
-                <div class="mt-6 text-center">
-                    <p class="text-sm text-gray-500">
-                        Butuh bantuan?
-                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">Hubungi Kami</a>
-                    </p>
-                </div>
             </div>
         </div>
     </div>

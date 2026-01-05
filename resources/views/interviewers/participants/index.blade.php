@@ -22,11 +22,11 @@
                         <div>
                             <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Cari nama/kode..."
-                                class="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
+                                class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
                         </div>
 
                         <div>
-                            <select name="status" class="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
+                            <select name="status" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
                                 <option value="">Semua Status</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Belum Interview</option>
                                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Sudah Interview</option>
@@ -34,7 +34,7 @@
                         </div>
 
                         <div>
-                            <select name="major_id" class="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
+                            <select name="major_id" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
                                 <option value="">Semua Jurusan</option>
                                 @foreach($majors ?? [] as $major)
                                 <option value="{{ $major->id }}" {{ request('major_id') == $major->id ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
                                 Filter
                             </button>
                             <a href="{{ route('interviewer.participants.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
@@ -88,9 +88,6 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
-                                                {{ substr($participant->personalDetail->full_name ?? 'U', 0, 1) }}
-                                            </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-900">{{ $participant->personalDetail->full_name ?? '-' }}</p>
                                                 <p class="text-xs text-gray-500">{{ $participant->personalDetail->phone ?? '-' }}</p>
@@ -122,14 +119,17 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @if($participant->examResults && $participant->examResults->count() > 0)
-                                        <span class="font-bold text-green-600">{{ $participant->examResults->first()->score }}</span>
+                                            {{-- HANYA TAMPILKAN FINAL SCORE SAJA --}}
+                                            <span class="font-bold text-gray-600 text-lg">
+                                                {{ number_format($participant->examResults->first()->final_score, 1) }}
+                                            </span>
                                         @else
-                                        <span class="text-gray-400">-</span>
+                                            <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('interviewer.participants.show', $participant->id) }}"
-                                           class="text-purple-600 hover:text-purple-900">
+                                           class="text-blue-600 hover:text-blue-900">
                                             {{ $participant->examResults && $participant->examResults->count() > 0 ? 'Lihat' : 'Interview' }}
                                         </a>
                                     </td>

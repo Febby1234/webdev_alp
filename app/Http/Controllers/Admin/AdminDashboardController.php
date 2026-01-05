@@ -18,12 +18,21 @@ class AdminDashboardController extends Controller
         $stats = [
             'total_students'        => User::where('role', 'student')->count(),
             'total_registrations'   => Registration::count(),
+
+            // Pending Verifikasi (Data Baru)
             'pending_verifications' => Registration::where('status', 'pending')->count(),
+
+            // Dokumen Pending (Opsional, sesuaikan status di DB dokumen)
             'pending_documents'     => Document::where('status', 'pending')->count(),
-            'pending_payments'      => Payment::where('status', 'pending')->count(),
-            'accepted_students'     => Registration::where('status', 'accepted')->count(),
-            'rejected_students'     => Registration::where('status', 'rejected')->count(),
+
+            // [PENTING] Gunakan Registration agar sinkron dengan Filter Dropdown tadi
+            'pending_payments'      => Registration::where('status', 'paid')->count(),
+
+            // [PENTING] Gunakan 'accepted' untuk yang Lulus
             'pass'                  => Registration::where('status', 'accepted')->count(),
+
+            // Statistik Tambahan
+            'rejected_students'     => Registration::where('status', 'rejected')->count(),
             'total_majors'          => Major::count(),
             'active_batches'        => Batch::where('is_active', true)->count(),
         ];

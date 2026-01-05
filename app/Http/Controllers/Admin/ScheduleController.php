@@ -38,7 +38,7 @@ class ScheduleController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'batch_id' => 'nullable|exists:batches,id',
+            'batch_id' => 'required|exists:batches,id',
             'type'     => 'required|string|max:255',
             'date'     => 'required|date',
             'time'     => 'required',

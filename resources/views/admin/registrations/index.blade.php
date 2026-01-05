@@ -32,16 +32,22 @@
                         <div>
                             <select name="status" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
                                 <option value="">Semua Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="documents_pending" {{ request('status') == 'documents_pending' ? 'selected' : '' }}>Documents Pending</option>
-                                <option value="documents_verified" {{ request('status') == 'documents_verified' ? 'selected' : '' }}>Documents Verified</option>
-                                <option value="payment_pending" {{ request('status') == 'payment_pending' ? 'selected' : '' }}>Payment Pending</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                <option value="exam_scheduled" {{ request('status') == 'exam_scheduled' ? 'selected' : '' }}>Exam Scheduled</option>
-                                <option value="finished" {{ request('status') == 'finished' ? 'selected' : '' }}>Finished</option>
-                                <option value="pass" {{ request('status') == 'pass' ? 'selected' : '' }}>Pass</option>
-                                <option value="fail" {{ request('status') == 'fail' ? 'selected' : '' }}>Fail</option>
-                                <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Accepted</option>
+
+                                {{-- Tahap Awal --}}
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending (Baru)</option>
+                                <option value="documents_verified" {{ request('status') == 'documents_verified' ? 'selected' : '' }}>Dokumen Valid</option>
+
+                                {{-- Tahap Pembayaran --}}
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Sudah Bayar (Cek Bukti)</option>
+                                <option value="payment_verified" {{ request('status') == 'payment_verified' ? 'selected' : '' }}>Pembayaran Valid</option>
+
+                                {{-- Tahap Ujian --}}
+                                <option value="exam_scheduled" {{ request('status') == 'exam_scheduled' ? 'selected' : '' }}>Jadwal Ujian Ada</option>
+                                <option value="finished" {{ request('status') == 'finished' ? 'selected' : '' }}>Selesai Ujian</option>
+
+                                {{-- Tahap Akhir (Gunakan accepted/rejected) --}}
+                                <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Lulus (Accepted)</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Gagal (Rejected)</option>
                             </select>
                         </div>
 
@@ -61,9 +67,6 @@
                         <div class="flex gap-2">
                             <button type="submit"
                                     class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                                </svg>
                                 Filter
                             </button>
                             @if(request()->hasAny(['search', 'status', 'major_id']))
@@ -136,13 +139,6 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                    <span class="text-blue-600 font-semibold text-sm">
-                                                        {{ substr($registration->personalDetail->full_name ?? $registration->user->name ?? 'U', 0, 1) }}
-                                                    </span>
-                                                </div>
-                                            </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
                                                     {{ $registration->personalDetail->full_name ?? $registration->user->name ?? '-' }}
