@@ -28,8 +28,23 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
-                        <a href="{{ route('student.dashboard') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                            Dashboard
+                        {{-- Pengecekan role untuk redirect yang tepat --}}
+                        @php
+                            $dashboardRoute = match(auth()->user()->role) {
+                                'admin' => route('admin.dashboard'),
+                                'interviewer' => route('interviewer.dashboard'),
+                                'student' => route('student.dashboard'),
+                                default => route('student.dashboard'),
+                            };
+                            $dashboardLabel = match(auth()->user()->role) {
+                                'admin' => 'Dashboard Admin',
+                                'interviewer' => 'Dashboard Interviewer',
+                                'student' => 'Dashboard',
+                                default => 'Dashboard',
+                            };
+                        @endphp
+                        <a href="{{ $dashboardRoute }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            {{ $dashboardLabel }}
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-600 transition">Masuk</a>
