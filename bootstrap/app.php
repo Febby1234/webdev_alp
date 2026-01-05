@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request; // <--- WAJIB DITAMBAHKAN (Import Request)
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,24 +16,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
-        $middleware->redirectGuestsTo(function (Request $request) {
+        // Redirect guest (belum login) ke halaman login
+        $middleware->redirectGuestsTo('/login');
+
+        // Redirect user yang sudah login (ketika akses halaman guest seperti /login, /register)
+        $middleware->redirectUsersTo(function ($request) {
             $user = $request->user();
 
-            if ($user) {
-                // Cek Role dan arahkan ke dashboard masing-masing
-                if ($user->role === 'admin') {
-                    return route('admin.dashboard');
-                } elseif ($user->role === 'interviewer') {
-                    return route('interviewer.dashboard');
-                } else {
-                    return route('student.dashboard');
-                }
+            if (!$user) {
+                return '/';
             }
 
-            return route('student.dashboard');
+            return match($user->role) {
+                'admin' => route('admin.dashboard'),
+                'interviewer' => route('interviewer.dashboard'),
+                default => route('student.dashboard'),
+            };
         });
-        // === KODE BARU SELESAI ===
-
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
