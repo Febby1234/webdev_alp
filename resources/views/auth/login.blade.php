@@ -4,7 +4,7 @@
         <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden">
             {{-- Background Pattern --}}
             <div class="absolute inset-0 opacity-10">
-                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-full h-full" xmlns="https://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
                             <circle cx="20" cy="20" r="1" fill="white"/>
