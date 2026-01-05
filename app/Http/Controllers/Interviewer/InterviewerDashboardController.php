@@ -30,10 +30,8 @@ class InterviewerDashboardController extends Controller
         // Jadwal hari ini
         $today_schedules = Schedule::whereDate('date', today())->count();
 
-        // Rata-rata nilai yang diberikan interviewer ini
         $average_score = ExamResult::where('interviewer_id', $interviewerId)->avg('score') ?? 0;
 
-        // Interview minggu ini oleh interviewer ini
         $this_week_interviews = ExamResult::where('interviewer_id', $interviewerId)
             ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->count();

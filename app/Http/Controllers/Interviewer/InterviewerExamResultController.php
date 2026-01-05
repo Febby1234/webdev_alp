@@ -20,8 +20,8 @@ class InterviewerExamResultController extends Controller
         $query = Registration::with(['user', 'major', 'personalDetail', 'examResults', 'schedules'])
             ->whereIn('status', [
                 'documents_verified',
-                'verified',          // <--- TAMBAHAN PENTING
-                'payment_verified',  // <--- TAMBAHAN PENTING
+                'verified',
+                'payment_verified', 
                 'exam_scheduled',
                 'interview_scheduled',
                 'finished',

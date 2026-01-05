@@ -11,19 +11,6 @@
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    {{-- Filter --}}
-    <div class="mb-8 bg-white rounded-lg shadow-sm p-4">
-        <div class="flex flex-wrap gap-4 items-center">
-            <input type="text"
-                   placeholder="Cari jurusan..."
-                   class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Semua Status</option>
-                <option value="available">Tersedia</option>
-                <option value="full">Penuh</option>
-            </select>
-        </div>
-    </div>
 
     {{-- Majors Grid --}}
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

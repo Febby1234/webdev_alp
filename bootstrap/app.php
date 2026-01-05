@@ -13,13 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: "*");
-        // Alias Middleware Role kamu
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
-        // === KODE BARU DIMULAI DISINI ===
-        // Mengatur redirect jika user YANG SUDAH LOGIN mencoba akses halaman tamu (login/register)
         $middleware->redirectGuestsTo(function (Request $request) {
             $user = $request->user();
 
@@ -34,7 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
             }
 
-            // Default fallback (jika entah kenapa user null tapi dianggap login)
             return route('student.dashboard');
         });
         // === KODE BARU SELESAI ===
